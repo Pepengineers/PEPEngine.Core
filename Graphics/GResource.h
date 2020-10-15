@@ -22,6 +22,11 @@ namespace PEPEngine
 			          D3D12_RESOURCE_STATES initState = D3D12_RESOURCE_STATE_COMMON,
 			          D3D12_HEAP_PROPERTIES heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			          D3D12_HEAP_FLAGS heapFlags = D3D12_HEAP_FLAG_NONE);
+			GResource(std::shared_ptr<GDevice> device, const D3D12_RESOURCE_DESC& resourceDesc,
+				ComPtr<ID3D12Heap> heap,
+				const std::wstring& name = L"",
+				const D3D12_CLEAR_VALUE* clearValue = nullptr,
+				D3D12_RESOURCE_STATES initState = D3D12_RESOURCE_STATE_COMMON				);
 			GResource(std::shared_ptr<GDevice> device, Microsoft::WRL::ComPtr<ID3D12Resource>& resource,
 			          const std::wstring& name = L"");
 			GResource(const GResource& copy);

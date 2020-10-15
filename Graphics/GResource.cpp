@@ -47,6 +47,32 @@ namespace PEPEngine
 			SetName(name);
 		}
 
+		GResource::GResource(std::shared_ptr<GDevice> device, const D3D12_RESOURCE_DESC& resourceDesc,
+			ComPtr<ID3D12Heap> heap, const std::wstring& name, const D3D12_CLEAR_VALUE* clearValue,
+			D3D12_RESOURCE_STATES initState) : device(device)
+		{
+			id = ++resourceId;
+
+
+			if (clearValue)
+			{
+				this->clearValue = std::make_unique<D3D12_CLEAR_VALUE>(*clearValue);
+			}
+
+			ThrowIfFailed(device->GetDXDevice()->CreatePlacedResource(
+				heap.Get(),
+				0,
+				&resourceDesc,
+				initState,
+				this->clearValue.get(),
+				IID_PPV_ARGS(&dxResource)
+			));
+
+			GResourceStateTracker::AddCurrentState(dxResource.Get(), initState);
+
+			SetName(name);
+		}
+
 		GResource::GResource(const std::shared_ptr<GDevice> device, ComPtr<ID3D12Resource>& resource,
 		                     const std::wstring& name)
 			: device(device), dxResource(std::move(resource))
