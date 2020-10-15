@@ -4,14 +4,12 @@
 #include <string>
 #include <memory>
 #include "d3dx12.h"
+#include "GDevice.h"
 
 namespace PEPEngine
 {
 	namespace Graphics
 	{
-		class GMemory;
-		class GDevice;
-
 		class GResource
 		{
 			static uint64_t resourceId;
