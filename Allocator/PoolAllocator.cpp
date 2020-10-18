@@ -7,10 +7,8 @@
 #include <iostream>
 #endif
 
-namespace PEPEngine
+namespace PEPEngine::Allocator
 {
-	namespace Allocator
-	{
 		PoolAllocator::PoolAllocator(const std::size_t totalSize, const std::size_t chunkSize)
 			: Allocator(totalSize)
 		{
@@ -71,5 +69,4 @@ namespace PEPEngine
 				m_freeList.push((Node*)address);
 			}
 		}
-	}
 }

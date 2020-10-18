@@ -1,16 +1,14 @@
-#include "GHeap.h"
+#include "GDescriptorHeap.h"
 
 
 #include "d3dUtil.h"
 #include "GDevice.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
-		GHeap::GHeap(const std::shared_ptr<GDevice> device, D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptors)
+		GDescriptorHeap::GDescriptorHeap(const std::shared_ptr<GDevice> device, D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t descriptorsCount)
 			: heapType(type)
-			  , descriptorCount(numDescriptors), device(device)
+			  , descriptorCount(descriptorsCount), device(device)
 		{
 			D3D12_DESCRIPTOR_HEAP_DESC heapDesc;
 			heapDesc.Type = heapType;
@@ -22,8 +20,8 @@ namespace PEPEngine
 
 			ThrowIfFailed(device->GetDXDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&descriptorHeap)));
 
-			startCPUPtr = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
-			startGPUPtr = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+			baseCPUPtr = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
+			baseGPUPtr = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
 
 			descriptorHandleIncrementSize = device->GetDescriptorHandleIncrementSize(heapType);
 			freeHandlesCount = descriptorCount;
@@ -31,42 +29,42 @@ namespace PEPEngine
 			AddNewBlock(0, freeHandlesCount);
 		}
 
-		D3D12_DESCRIPTOR_HEAP_TYPE GHeap::GetType() const
+		D3D12_DESCRIPTOR_HEAP_TYPE GDescriptorHeap::GetType() const
 		{
 			return heapType;
 		}
 
-		uint32_t GHeap::FreeHandlerCount() const
+		uint32_t GDescriptorHeap::FreeHandlerCount() const
 		{
 			return freeHandlesCount;
 		}
 
-		bool GHeap::HasSpace(uint32_t numDescriptors) const
+		bool GDescriptorHeap::HasSpace(uint32_t descriptorCount) const
 		{
-			return freeListBySize.lower_bound(numDescriptors) != freeListBySize.end();
+			return freeListBySize.lower_bound(descriptorCount) != freeListBySize.end();
 		}
 
-		void GHeap::AddNewBlock(uint32_t offset, uint32_t numDescriptors)
+		void GDescriptorHeap::AddNewBlock(uint32_t offset, uint32_t descriptorCount)
 		{
-			const auto offsetIt = freeListByOffset.emplace(offset, numDescriptors);
-			const auto sizeIt = freeListBySize.emplace(numDescriptors, offsetIt.first);
+			const auto offsetIt = freeListByOffset.emplace(offset, descriptorCount);
+			const auto sizeIt = freeListBySize.emplace(descriptorCount, offsetIt.first);
 			offsetIt.first->second.FreeListBySizeIt = sizeIt;
 		}
 
-		GMemory GHeap::Allocate(uint32_t numDescriptors)
+		GDescriptor GDescriptorHeap::Allocate(uint32_t descriptorCount)
 		{
 			std::lock_guard<std::mutex> lock(allocationMutex);
 
-			if (numDescriptors > freeHandlesCount)
+			if (descriptorCount > freeHandlesCount)
 			{
-				return GMemory();
+				return GDescriptor();
 			}
 
-			const auto freeBlockIt = freeListBySize.lower_bound(numDescriptors);
+			const auto freeBlockIt = freeListBySize.lower_bound(descriptorCount);
 
 			if (freeBlockIt == freeListBySize.end())
 			{
-				return GMemory();
+				return GDescriptor();
 			}
 
 			const auto blockSize = freeBlockIt->first;
@@ -78,37 +76,37 @@ namespace PEPEngine
 			freeListBySize.erase(freeBlockIt);
 			freeListByOffset.erase(offsetIt);
 
-			const auto newOffset = offset + numDescriptors;
-			const auto newSize = blockSize - numDescriptors;
+			const auto newOffset = offset + descriptorCount;
+			const auto newSize = blockSize - descriptorCount;
 
 			if (newSize > 0)
 			{
 				AddNewBlock(newOffset, newSize);
 			}
 
-			freeHandlesCount -= numDescriptors;
+			freeHandlesCount -= descriptorCount;
 
-			return GMemory(
-				CD3DX12_CPU_DESCRIPTOR_HANDLE(startCPUPtr, offset, descriptorHandleIncrementSize),
-				CD3DX12_GPU_DESCRIPTOR_HANDLE(startGPUPtr, offset, descriptorHandleIncrementSize),
-				numDescriptors, descriptorHandleIncrementSize, shared_from_this());
+			return GDescriptor(
+				CD3DX12_CPU_DESCRIPTOR_HANDLE(baseCPUPtr, offset, descriptorHandleIncrementSize),
+				CD3DX12_GPU_DESCRIPTOR_HANDLE(baseGPUPtr, offset, descriptorHandleIncrementSize),
+				descriptorCount, descriptorHandleIncrementSize, shared_from_this());
 		}
 
-		uint32_t GHeap::ComputeOffset(D3D12_CPU_DESCRIPTOR_HANDLE handle) const
+		uint32_t GDescriptorHeap::ComputeOffset(D3D12_CPU_DESCRIPTOR_HANDLE handle) const
 		{
-			return static_cast<uint32_t>(handle.ptr - startCPUPtr.ptr) / descriptorHandleIncrementSize;
+			return static_cast<uint32_t>(handle.ptr - baseCPUPtr.ptr) / descriptorHandleIncrementSize;
 		}
 
-		void GHeap::Free(GMemory&& descriptor, uint64_t frameNumber)
+		void GDescriptorHeap::Free(GDescriptor&& descriptor, uint64_t frameNumber)
 		{
 			auto offset = ComputeOffset(descriptor.GetCPUHandle());
 
 			std::lock_guard<std::mutex> lock(allocationMutex);
 
-			staleDescriptors.emplace(offset, descriptor.GetHandlersCount(), frameNumber);
+			staleDescriptors.emplace(offset, descriptor.GetDescriptorCount(), frameNumber);
 		}
 
-		void GHeap::FreeBlock(uint32_t offset, uint32_t numDescriptors)
+		void GDescriptorHeap::FreeBlock(uint32_t offset, uint32_t descriptorCount)
 		{
 			const auto nextBlockIt = freeListByOffset.upper_bound(offset);
 
@@ -122,31 +120,31 @@ namespace PEPEngine
 			{
 				prevBlockIt = freeListByOffset.end();
 			}
-			freeHandlesCount += numDescriptors;
+			freeHandlesCount += descriptorCount;
 
 			if (prevBlockIt != freeListByOffset.end() &&
 				offset == prevBlockIt->first + prevBlockIt->second.Size)
 			{
 				offset = prevBlockIt->first;
-				numDescriptors += prevBlockIt->second.Size;
+				descriptorCount += prevBlockIt->second.Size;
 
 				freeListBySize.erase(prevBlockIt->second.FreeListBySizeIt);
 				freeListByOffset.erase(prevBlockIt);
 			}
 
 			if (nextBlockIt != freeListByOffset.end() &&
-				offset + numDescriptors == nextBlockIt->first)
+				offset + descriptorCount == nextBlockIt->first)
 			{
-				numDescriptors += nextBlockIt->second.Size;
+				descriptorCount += nextBlockIt->second.Size;
 
 				freeListBySize.erase(nextBlockIt->second.FreeListBySizeIt);
 				freeListByOffset.erase(nextBlockIt);
 			}
 
-			AddNewBlock(offset, numDescriptors);
+			AddNewBlock(offset, descriptorCount);
 		}
 
-		void GHeap::ReleaseStaleDescriptors(uint64_t frameNumber)
+		void GDescriptorHeap::ReleaseStaleDescriptors(uint64_t frameNumber)
 		{
 			std::lock_guard<std::mutex> lock(allocationMutex);
 
@@ -163,14 +161,13 @@ namespace PEPEngine
 			}
 		}
 
-		ID3D12DescriptorHeap* GHeap::GetDescriptorHeap()
+		ID3D12DescriptorHeap* GDescriptorHeap::GetDirectxHeap() const
 		{
 			return descriptorHeap.Get();
 		}
 
-		std::shared_ptr<GDevice> GHeap::GetDevice() const
+		std::shared_ptr<GDevice> GDescriptorHeap::GetDevice() const
 		{
 			return device;
 		}
-	}
 }

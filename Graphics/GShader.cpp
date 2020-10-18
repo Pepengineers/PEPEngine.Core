@@ -1,10 +1,8 @@
 #include "GShader.h"
 #include "D3DShaderLoad.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
 		GShader::GShader(const std::wstring fileName, const ShaderType type, const D3D_SHADER_MACRO* defines,
 		                 const std::string entryPoint, const std::string target) : FileName(fileName), type(type),
 			defines(defines), entryPoint(entryPoint),
@@ -32,5 +30,4 @@ namespace PEPEngine
 		{
 			return type;
 		}
-	}
 }

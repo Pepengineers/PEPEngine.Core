@@ -4,10 +4,8 @@
 #include "d3dUtil.h"
 #include "GDevice.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
 		GDataUploader::GDataUploader(const std::shared_ptr<GDevice> device, size_t pageSize)
 			: device(device), PageSize(pageSize)
 		{
@@ -140,5 +138,4 @@ namespace PEPEngine
 		{
 			return PageSize;
 		}
-	}
 }

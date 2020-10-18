@@ -4,10 +4,8 @@
 #include <cassert>
 
 
-namespace PEPEngine
+namespace PEPEngine::Utils
 {
-	namespace Utils
-	{
 		// Source: Dmitry Vyukov's MPMC
 		// http://www.1024cores.net/home/lock-free-algorithms/queues/bounded-mpmc-queue
 
@@ -103,5 +101,4 @@ namespace PEPEngine
 			std::atomic<size_t> dequeue_pos_;
 			cacheline_pad_t pad3_;
 		};
-	}
 }

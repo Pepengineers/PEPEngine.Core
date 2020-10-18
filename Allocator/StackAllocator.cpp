@@ -6,10 +6,8 @@
 #include <iostream>
 #endif
 
-namespace PEPEngine
+namespace PEPEngine::Allocator
 {
-	namespace Allocator
-	{
 		StackAllocator::StackAllocator(const std::size_t totalSize)
 			: Allocator(totalSize)
 		{
@@ -84,5 +82,4 @@ namespace PEPEngine
 			used = 0;
 			peak = 0;
 		}
-	}
 }

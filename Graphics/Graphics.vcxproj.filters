@@ -45,12 +45,6 @@
     <ClInclude Include="GDataUploader.h">
       <Filter>Header Files\Allocators</Filter>
     </ClInclude>
-    <ClInclude Include="GHeap.h">
-      <Filter>Header Files\Allocators</Filter>
-    </ClInclude>
-    <ClInclude Include="GMemory.h">
-      <Filter>Header Files\Allocators</Filter>
-    </ClInclude>
     <ClInclude Include="ComputePSO.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
@@ -102,6 +96,12 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GDescriptor.h">
+      <Filter>Header Files\Allocators</Filter>
+    </ClInclude>
+    <ClInclude Include="GDescriptorHeap.h">
+      <Filter>Header Files\Allocators</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ComputePSO.cpp">
@@ -120,12 +120,6 @@
       <Filter>Source Files\Render</Filter>
     </ClCompile>
     <ClCompile Include="GDataUploader.cpp">
-      <Filter>Source Files\Allocators</Filter>
-    </ClCompile>
-    <ClCompile Include="GHeap.cpp">
-      <Filter>Source Files\Allocators</Filter>
-    </ClCompile>
-    <ClCompile Include="GMemory.cpp">
       <Filter>Source Files\Allocators</Filter>
     </ClCompile>
     <ClCompile Include="GraphicPSO.cpp">
@@ -160,6 +154,12 @@
     </ClCompile>
     <ClCompile Include="GCrossAdapterResource.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GDescriptor.cpp">
+      <Filter>Source Files\Allocators</Filter>
+    </ClCompile>
+    <ClCompile Include="GDescriptorHeap.cpp">
+      <Filter>Source Files\Allocators</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -4,10 +4,8 @@
 #include "d3dx12.h"
 #include "GDevice.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
 		GraphicPSO::GraphicPSO(RenderMode::Mode type) : type(type)
 		{
 			ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
@@ -150,5 +148,4 @@ namespace PEPEngine
 
 			isInitial = true;
 		}
-	}
 }

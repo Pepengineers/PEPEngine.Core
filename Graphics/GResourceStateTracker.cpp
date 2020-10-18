@@ -6,10 +6,8 @@
 #include "d3dx12.h"
 #include "GResource.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
 		// Static definitions.
 		std::mutex GResourceStateTracker::globalMutex;
 		bool GResourceStateTracker::isLocked = false;
@@ -292,5 +290,4 @@ namespace PEPEngine
 				globalResourceState.erase(resource);
 			}
 		}
-	}
 }

@@ -4,7 +4,7 @@
 #include <mutex>
 #include <wrl/client.h>
 #include "d3dx12.h"
-#include "GMemory.h"
+#include "GDescriptor.h"
 #include "MemoryAllocator.h"
 
 namespace PEPEngine
@@ -16,33 +16,33 @@ namespace PEPEngine
 
 		class GDevice;
 
-		class GHeap : public std::enable_shared_from_this<GHeap>
+		class GDescriptorHeap : public std::enable_shared_from_this<GDescriptorHeap>
 		{
 		public:
-			GHeap(class std::shared_ptr<GDevice> device, D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptors);
+			GDescriptorHeap(class std::shared_ptr<GDevice> device, D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t descriptorsCount);
 
 			D3D12_DESCRIPTOR_HEAP_TYPE GetType() const;
 
-			bool HasSpace(uint32_t numDescriptors) const;
+			bool HasSpace(uint32_t descriptorCount) const;
 
 			uint32_t FreeHandlerCount() const;
 
-			GMemory Allocate(uint32_t numDescriptors);
+			GDescriptor Allocate(uint32_t descriptorCount);
 
-			void Free(GMemory&& descriptorHandle, uint64_t frameNumber);
+			void Free(GDescriptor&& descriptorHandle, uint64_t frameNumber);
 
 			void ReleaseStaleDescriptors(uint64_t frameNumber);
 
-			ID3D12DescriptorHeap* GetDescriptorHeap();
+			ID3D12DescriptorHeap* GetDirectxHeap() const;
 
 			std::shared_ptr<GDevice> GetDevice() const;
 		protected:
 
 			uint32_t ComputeOffset(D3D12_CPU_DESCRIPTOR_HANDLE handle) const;
 
-			void AddNewBlock(uint32_t offset, uint32_t numDescriptors);
+			void AddNewBlock(uint32_t offset, uint32_t descriptorCount);
 
-			void FreeBlock(uint32_t offset, uint32_t numDescriptors);
+			void FreeBlock(uint32_t offset, uint32_t descriptorCount);
 
 		private:
 			using OffsetType = size_t;
@@ -87,8 +87,8 @@ namespace PEPEngine
 			ComPtr<ID3D12DescriptorHeap> descriptorHeap;
 
 			D3D12_DESCRIPTOR_HEAP_TYPE heapType;
-			CD3DX12_CPU_DESCRIPTOR_HANDLE startCPUPtr{};
-			CD3DX12_GPU_DESCRIPTOR_HANDLE startGPUPtr{};
+			CD3DX12_CPU_DESCRIPTOR_HANDLE baseCPUPtr{};
+			CD3DX12_GPU_DESCRIPTOR_HANDLE baseGPUPtr{};
 
 			uint32_t descriptorHandleIncrementSize{};
 			uint32_t descriptorCount;

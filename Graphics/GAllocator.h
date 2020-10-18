@@ -1,6 +1,6 @@
 #pragma once
 #include "MemoryAllocator.h"
-#include "GMemory.h"
+#include "GDescriptor.h"
 #include "d3dx12.h"
 #include <cstdint>
 #include <mutex>
@@ -12,7 +12,7 @@ namespace PEPEngine
 	{
 		using namespace Allocator;
 
-		class GHeap;
+		class GDescriptorHeap;
 		class GDevice;
 
 		class GAllocator
@@ -24,20 +24,20 @@ namespace PEPEngine
 
 			virtual ~GAllocator();
 
-			GMemory Allocate(uint32_t descriptorCount = 1);
+			GDescriptor Allocate(uint32_t descriptorCount = 1);
 
 			void ReleaseStaleDescriptors(uint64_t frameNumber);
 
 		private:
-			using GraphicMemoryPage = custom_vector<std::shared_ptr<GHeap>>;
+			using GraphicMemoryPage = custom_vector<std::shared_ptr<GDescriptorHeap>>;
 
-			std::shared_ptr<GHeap> CreateAllocatorPage();
+			std::shared_ptr<GDescriptorHeap> CreateAllocatorPage();
 
 			D3D12_DESCRIPTOR_HEAP_TYPE allocatorType;
 
 			uint32_t numDescriptorsPerPage;
 
-			GraphicMemoryPage pages = MemoryAllocator::CreateVector<std::shared_ptr<GHeap>>();
+			GraphicMemoryPage pages = MemoryAllocator::CreateVector<std::shared_ptr<GDescriptorHeap>>();
 
 			custom_set<size_t> availablePages = MemoryAllocator::CreateSet<size_t>();
 

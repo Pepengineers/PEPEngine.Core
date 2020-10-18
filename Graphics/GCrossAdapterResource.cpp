@@ -4,10 +4,8 @@
 #include "GDevice.h"
 #include "GResource.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
 		GCrossAdapterResource::GCrossAdapterResource(D3D12_RESOURCE_DESC& desc,
 		                                             const std::shared_ptr<GDevice>& primeDevice,
 		                                             const std::shared_ptr<GDevice>& sharedDevice,
@@ -38,5 +36,4 @@ namespace PEPEngine
 		{
 			return *sharedResource;
 		}
-	}
 }

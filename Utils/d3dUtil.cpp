@@ -4,10 +4,8 @@
 #include <fstream>
 #include <string>
 
-namespace PEPEngine
+namespace PEPEngine::Utils
 {
-	namespace Utils
-	{
 		using Microsoft::WRL::ComPtr;
 
 		DxException::DxException(HRESULT hr, const std::wstring& functionName, const std::wstring& filename,
@@ -38,5 +36,4 @@ namespace PEPEngine
 			return FunctionName + L" failed in " + Filename + L"; line " + std::to_wstring(LineNumber) + L"; error: " +
 				msg;
 		}
-	}
 }

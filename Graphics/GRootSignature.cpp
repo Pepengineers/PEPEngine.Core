@@ -4,10 +4,8 @@
 #include "d3dUtil.h"
 #include "GDevice.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
 		std::vector<CD3DX12_STATIC_SAMPLER_DESC> GetStaticSamplers()
 		{
 			const CD3DX12_STATIC_SAMPLER_DESC pointWrap(
@@ -182,5 +180,4 @@ namespace PEPEngine
 		{
 			return signature;
 		}
-	}
 }

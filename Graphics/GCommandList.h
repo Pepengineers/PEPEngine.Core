@@ -20,7 +20,7 @@ namespace PEPEngine
 		class GResource;
 		class GTexture;
 		class GDataUploader;
-		class GMemory;
+		class GDescriptor;
 		class GResourceStateTracker;
 		class GRootSignature;
 		class GraphicPSO;
@@ -46,7 +46,7 @@ namespace PEPEngine
 			std::unique_ptr<GResourceStateTracker> tracker;
 
 			D3D12_PRIMITIVE_TOPOLOGY setedPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
-			ComPtr<ID3D12RootSignature> setedRootSignature = nullptr;
+			ComPtr<ID3D12RootSignature> cachedRootSignature = nullptr;
 			ComPtr<ID3D12PipelineState> setedPSO = nullptr;
 
 
@@ -71,7 +71,7 @@ namespace PEPEngine
 
 			void UpdateDescriptorHeaps();
 
-			void SetGMemory(const GMemory* memory);
+			void SetDescriptorsHeap(const GDescriptor* memory);
 
 			void SetRootSignature(GRootSignature* signature);
 
@@ -86,7 +86,7 @@ namespace PEPEngine
 
 			void SetRoot32BitConstant(UINT shaderRegister, UINT value, UINT offset) const;
 
-			void SetRootDescriptorTable(UINT rootSignatureSlot, const GMemory* memory, UINT offset = 0) const;
+			void SetRootDescriptorTable(UINT rootSignatureSlot, const GDescriptor* memory, UINT offset = 0) const;
 
 			void UpdateSubresource(GResource& destResource, D3D12_SUBRESOURCE_DATA* subresources,
 			                       size_t countSubresources);
@@ -104,13 +104,13 @@ namespace PEPEngine
 
 			void SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology);
 
-			void ClearRenderTarget(GMemory* memory, size_t offset = 0, const FLOAT rgba[4] = DirectX::Colors::Black,
+			void ClearRenderTarget(GDescriptor* memory, size_t offset = 0, const FLOAT rgba[4] = DirectX::Colors::Black,
 			                       D3D12_RECT* rects = nullptr, size_t rectCount = 0) const;
 
-			void SetRenderTargets(size_t RTCount = 0, GMemory* rtvMemory = nullptr, size_t rtvOffset = 0,
-			                      GMemory* dsvMemory = nullptr, size_t dsvOffset = 0, BOOL isSingleHandle = true) const;
+			void SetRenderTargets(size_t RTCount = 0, GDescriptor* rtvMemory = nullptr, size_t rtvOffset = 0,
+			                      GDescriptor* dsvMemory = nullptr, size_t dsvOffset = 0, BOOL isSingleHandle = true) const;
 
-			void ClearDepthStencil(GMemory* dsvMemory, size_t dsvOffset,
+			void ClearDepthStencil(GDescriptor* dsvMemory, size_t dsvOffset,
 			                       D3D12_CLEAR_FLAGS flags = D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
 			                       FLOAT depthValue = 1.0f, UINT stencilValue = 0, D3D12_RECT* rects = nullptr, size_t
 			                       rectCount = 0) const;

@@ -1,10 +1,8 @@
 #include "GAllocator.h"
-#include "GHeap.h"
+#include "GDescriptorHeap.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
 		GAllocator::GAllocator(const std::shared_ptr<GDevice> device, D3D12_DESCRIPTOR_HEAP_TYPE type,
 		                       uint32_t descriptorsPerPage)
 			: allocatorType(type)
@@ -18,9 +16,9 @@ namespace PEPEngine
 			pages.clear();
 		}
 
-		std::shared_ptr<GHeap> GAllocator::CreateAllocatorPage()
+		std::shared_ptr<GDescriptorHeap> GAllocator::CreateAllocatorPage()
 		{
-			auto newPage = std::make_shared<GHeap>(device, allocatorType, numDescriptorsPerPage);
+			auto newPage = std::make_shared<GDescriptorHeap>(device, allocatorType, numDescriptorsPerPage);
 
 			pages.emplace_back(newPage);
 			availablePages.insert(pages.size() - 1);
@@ -28,11 +26,11 @@ namespace PEPEngine
 			return newPage;
 		}
 
-		GMemory GAllocator::Allocate(uint32_t descriptorCount)
+		GDescriptor GAllocator::Allocate(uint32_t descriptorCount)
 		{
 			std::lock_guard<std::mutex> lock(allocationMutex);
 
-			GMemory allocation;
+			GDescriptor allocation;
 
 			auto iterator = availablePages.begin();
 			while (iterator != availablePages.end())
@@ -79,5 +77,4 @@ namespace PEPEngine
 				}
 			}
 		}
-	}
 }

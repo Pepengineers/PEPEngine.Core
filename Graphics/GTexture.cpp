@@ -6,17 +6,15 @@
 #include "ResourceUploadBatch.h"
 #include <winrt/base.h>
 #include "GDataUploader.h"
-#include "GMemory.h"
+#include "GDescriptor.h"
 #include "GResourceStateTracker.h"
 #include "GCommandList.h"
 #include "GDevice.h"
 #include "GShader.h"
 #include "GDeviceFactory.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
 		std::wstring GTexture::GetFilePath() const
 		{
 			return filePath;
@@ -109,7 +107,7 @@ namespace PEPEngine
 			cmdList->SetRootSignature(&signature);
 			cmdList->SetPipelineState(genMipMapPSO);
 
-			cmdList->SetGMemory(&mipMapsMemory);
+			cmdList->SetDescriptorsHeap(&mipMapsMemory);
 
 			D3D12_SHADER_RESOURCE_VIEW_DESC srcTextureSRVDesc = {};
 			srcTextureSRVDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -536,5 +534,4 @@ namespace PEPEngine
 		{
 			return resourceName;
 		}
-	}
 }

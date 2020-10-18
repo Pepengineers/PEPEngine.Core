@@ -173,9 +173,9 @@
     <ClInclude Include="GDevice.h" />
     <ClInclude Include="GDeviceFactory.h" />
     <ClInclude Include="GFence.h" />
-    <ClInclude Include="GMemory.h" />
+    <ClInclude Include="GDescriptor.h" />
     <ClInclude Include="GAllocator.h" />
-    <ClInclude Include="GHeap.h" />
+    <ClInclude Include="GDescriptorHeap.h" />
     <ClInclude Include="GDataUploader.h" />
     <ClInclude Include="GResourceStateTracker.h" />
     <ClInclude Include="GraphicPSO.h" />
@@ -195,9 +195,9 @@
     <ClCompile Include="GDevice.cpp" />
     <ClCompile Include="GDeviceFactory.cpp" />
     <ClCompile Include="GFence.cpp" />
-    <ClCompile Include="GMemory.cpp" />
+    <ClCompile Include="GDescriptor.cpp" />
     <ClCompile Include="GAllocator.cpp" />
-    <ClCompile Include="GHeap.cpp" />
+    <ClCompile Include="GDescriptorHeap.cpp" />
     <ClCompile Include="GDataUploader.cpp" />
     <ClCompile Include="GResourceStateTracker.cpp" />
     <ClCompile Include="GraphicPSO.cpp" />
@@ -232,7 +232,7 @@
     <Import Project="$(SolutionDir)packages\directxtk12_uwp.2020.9.30.1\build\native\directxtk12_uwp.targets" Condition="Exists('$(SolutionDir)packages\directxtk12_uwp.2020.9.30.1\build\native\directxtk12_uwp.targets')" />
     <Import Project="$(SolutionDir)packages\directxtex_uwp.2020.9.30.1\build\native\directxtex_uwp.targets" Condition="Exists('$(SolutionDir)packages\directxtex_uwp.2020.9.30.1\build\native\directxtex_uwp.targets')" />
     <Import Project="$(SolutionDir)packages\directxmesh_uwp.2020.8.15.1\build\native\directxmesh_uwp.targets" Condition="Exists('$(SolutionDir)packages\directxmesh_uwp.2020.8.15.1\build\native\directxmesh_uwp.targets')" />
-   </ImportGroup>
+  </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
@@ -241,5 +241,5 @@
     <Error Condition="!Exists('$(SolutionDir)packages\directxtk12_uwp.2020.9.30.1\build\native\directxtk12_uwp.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)packages\directxtk12_uwp.2020.9.30.1\build\native\directxtk12_uwp.targets'))" />
     <Error Condition="!Exists('$(SolutionDir)packages\directxtex_uwp.2020.9.30.1\build\native\directxtex_uwp.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)packages\directxtex_uwp.2020.9.30.1\build\native\directxtex_uwp.targets'))" />
     <Error Condition="!Exists('$(SolutionDir)packages\directxmesh_uwp.2020.8.15.1\build\native\directxmesh_uwp.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)packages\directxmesh_uwp.2020.8.15.1\build\native\directxmesh_uwp.targets'))" />
-   </Target>
+  </Target>
 </Project>

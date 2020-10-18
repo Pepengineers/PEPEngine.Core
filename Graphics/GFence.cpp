@@ -2,10 +2,8 @@
 #include "GDevice.h"
 #include "GCommandQueue.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
 		GFence::GFence(const std::shared_ptr<GDevice> device, D3D12_FENCE_FLAGS flags) : FenceValue(0), device(device)
 		{
 			device->GetDXDevice()->CreateFence(0, flags, IID_PPV_ARGS(&fence));
@@ -44,5 +42,4 @@ namespace PEPEngine
 			WaitForSingleObject(event, DWORD_MAX);
 			CloseHandle(event);
 		}
-	}
 }

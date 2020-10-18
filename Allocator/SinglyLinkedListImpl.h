@@ -1,10 +1,8 @@
 #include "SinglyLinkedList.h"
 #include "pch.h"
 
-namespace PEPEngine
+namespace PEPEngine::Allocator
 {
-	namespace Allocator
-	{
 		template <class T>
 		SinglyLinkedList<T>::SinglyLinkedList()
 		{
@@ -66,5 +64,4 @@ namespace PEPEngine
 				previousNode->next = deleteNode->next;
 			}
 		}
-	}
 }

@@ -5,10 +5,8 @@
 #include "GDevice.h"
 #include "GCommandQueue.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
 		ComPtr<IDXGIFactory4> GDeviceFactory::dxgiFactory = CreateFactory();
 		Lazy<bool> GDeviceFactory::isTearingSupport = Lazy<bool>(CheckTearingSupport);
 		custom_vector<ComPtr<IDXGIAdapter3>> GDeviceFactory::adapters = CreateAdapters();
@@ -168,5 +166,4 @@ namespace PEPEngine
 		{
 			return isTearingSupport.value();
 		}
-	}
 }

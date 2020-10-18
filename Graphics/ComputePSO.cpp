@@ -2,10 +2,8 @@
 #include "GDevice.h"
 #include "GShader.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
 		ComputePSO::ComputePSO()
 		{
 		}
@@ -37,5 +35,4 @@ namespace PEPEngine
 
 			assert("Bad Shader");
 		}
-	}
 }

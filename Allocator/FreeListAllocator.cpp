@@ -9,10 +9,8 @@
 #ifdef _DEBUG
 #include <iostream>
 #endif
-namespace PEPEngine
+namespace PEPEngine::Allocator
 {
-	namespace Allocator
-	{
 		FreeListAllocator::FreeListAllocator(const std::size_t totalSize, const PlacementPolicy pPolicy)
 			: Allocator(totalSize)
 		{
@@ -213,5 +211,4 @@ namespace PEPEngine
 			m_freeList.head = nullptr;
 			m_freeList.insert(nullptr, firstNode);
 		}
-	}
 }

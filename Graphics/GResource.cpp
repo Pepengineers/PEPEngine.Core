@@ -5,13 +5,11 @@
 
 #include "d3dUtil.h"
 #include "GDevice.h"
-#include "GMemory.h"
+#include "GDescriptor.h"
 #include "GResourceStateTracker.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
 		uint64_t GResource::resourceId = 0;
 
 		GResource::GResource(const std::wstring& name)
@@ -173,26 +171,26 @@ namespace PEPEngine
 		}
 
 
-		void GResource::CreateShaderResourceView(const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc, GMemory* memory,
+		void GResource::CreateShaderResourceView(const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc, GDescriptor* memory,
 		                                         size_t offset) const
 		{
 			device->GetDXDevice()->CreateShaderResourceView(dxResource.Get(), srvDesc, memory->GetCPUHandle(offset));
 		}
 
-		void GResource::CreateUnorderedAccessView(const D3D12_UNORDERED_ACCESS_VIEW_DESC* uavDesc, GMemory* memory,
+		void GResource::CreateUnorderedAccessView(const D3D12_UNORDERED_ACCESS_VIEW_DESC* uavDesc, GDescriptor* memory,
 		                                          size_t offset) const
 		{
 			device->GetDXDevice()->CreateUnorderedAccessView(dxResource.Get(), nullptr, uavDesc,
 			                                                 memory->GetCPUHandle(offset));
 		}
 
-		void GResource::CreateRenderTargetView(const D3D12_RENDER_TARGET_VIEW_DESC* rtvDesc, GMemory* memory,
+		void GResource::CreateRenderTargetView(const D3D12_RENDER_TARGET_VIEW_DESC* rtvDesc, GDescriptor* memory,
 		                                       size_t offset) const
 		{
 			device->GetDXDevice()->CreateRenderTargetView(dxResource.Get(), rtvDesc, memory->GetCPUHandle(offset));
 		}
 
-		void GResource::CreateDepthStencilView(const D3D12_DEPTH_STENCIL_VIEW_DESC* dsvDesc, GMemory* memory,
+		void GResource::CreateDepthStencilView(const D3D12_DEPTH_STENCIL_VIEW_DESC* dsvDesc, GDescriptor* memory,
 		                                       size_t offset) const
 		{
 			device->GetDXDevice()->CreateDepthStencilView(dxResource.Get(), dsvDesc, memory->GetCPUHandle(offset));
@@ -221,5 +219,4 @@ namespace PEPEngine
 				clearValue.reset();
 			}
 		}
-	}
 }

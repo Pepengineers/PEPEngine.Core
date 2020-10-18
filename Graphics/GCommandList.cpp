@@ -4,16 +4,15 @@
 #include "GDataUploader.h"
 #include "GResource.h"
 #include "GResourceStateTracker.h"
-#include "GMemory.h"
+#include "GDescriptor.h"
 #include "GraphicPSO.h"
 #include "GRootSignature.h"
 #include "GDevice.h"
 #include "GTexture.h"
+#include "GDescriptorHeap.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
 		void GCommandList::TrackResource(ComPtr<ID3D12Object> object)
 		{
 			trackedObject.push_back(object);
@@ -81,13 +80,13 @@ namespace PEPEngine
 			return cmdList;
 		}
 
-		void GCommandList::SetGMemory(const GMemory* memory)
+		void GCommandList::SetDescriptorsHeap(const GDescriptor* memory)
 		{
 			if (memory == nullptr || memory->IsNull())
-				assert("Memory Descriptor Heap is null");
+				assert(memory == nullptr || memory->IsNull() && "Memory Descriptor Heap is null");
 
 			const auto type = memory->GetType();
-			const auto heap = memory->GetDescriptorHeap();
+			const auto heap = memory->GetDescriptorHeap()->GetDirectxHeap();
 
 			if (setedDescriptorHeaps[type] != heap)
 			{
@@ -118,50 +117,46 @@ namespace PEPEngine
 		{
 			const auto d3d12RootSignature = signature->GetRootSignature();
 
-			if (setedRootSignature == d3d12RootSignature) return;
+			if (cachedRootSignature == d3d12RootSignature) return;
 
-			setedRootSignature = d3d12RootSignature;
+			cachedRootSignature = d3d12RootSignature;
 
-			if (type == D3D12_COMMAND_LIST_TYPE_DIRECT)
+			if(type == D3D12_COMMAND_LIST_TYPE_COMPUTE)
 			{
-				cmdList->SetGraphicsRootSignature(setedRootSignature.Get());
+				cmdList->SetComputeRootSignature(cachedRootSignature.Get());				
 			}
-
-			if (type == D3D12_COMMAND_LIST_TYPE_COMPUTE)
+			else
 			{
-				cmdList->SetComputeRootSignature(setedRootSignature.Get());
+				cmdList->SetGraphicsRootSignature(cachedRootSignature.Get());
 			}
-
-			TrackResource(setedRootSignature);
+			
+			TrackResource(cachedRootSignature);
 		}
 
 		void GCommandList::SetRootShaderResourceView(UINT rootSignatureSlot, ShaderBuffer& resource, UINT offset)
 		{
-			if (setedRootSignature == nullptr)
-				assert("Root Signature not set into the CommandList");
+			assert(cachedRootSignature != nullptr && "Root Signature not set into the CommandList");
 
-			if (!resource.IsValid())
-				assert("Resource is invalid");
+			assert(resource.IsValid() && "Resource is invalid");
 
 			const auto res = resource.GetElementResourceAddress(offset);
-
-			if (type == D3D12_COMMAND_LIST_TYPE_DIRECT)
-			{
-				cmdList->SetGraphicsRootShaderResourceView(rootSignatureSlot, res);
-			}
 
 			if (type == D3D12_COMMAND_LIST_TYPE_COMPUTE)
 			{
 				cmdList->SetComputeRootShaderResourceView(rootSignatureSlot, res);
 			}
-
+			else
+			{
+				cmdList->SetGraphicsRootShaderResourceView(rootSignatureSlot, res);
+			}			
+			
 			TrackResource(resource);
 		}
 
 
 		void GCommandList::SetRootConstantBufferView(UINT rootSignatureSlot, ShaderBuffer& resource, UINT offset)
 		{
-			if (setedRootSignature == nullptr)
+			if (cachedRootSignature == nullptr)
 				assert("Root Signature not set into the CommandList");
 
 			if (!resource.IsValid())
@@ -169,14 +164,13 @@ namespace PEPEngine
 
 			auto res = resource.GetElementResourceAddress(offset);
 
-			if (type == D3D12_COMMAND_LIST_TYPE_DIRECT)
-			{
-				cmdList->SetGraphicsRootConstantBufferView(rootSignatureSlot, res);
-			}
-
 			if (type == D3D12_COMMAND_LIST_TYPE_COMPUTE)
 			{
 				cmdList->SetComputeRootConstantBufferView(rootSignatureSlot, res);
+			}
+			else
+			{
+				cmdList->SetGraphicsRootConstantBufferView(rootSignatureSlot, res);
 			}
 
 			TrackResource(resource);
@@ -185,7 +179,7 @@ namespace PEPEngine
 
 		void GCommandList::SetRootUnorderedAccessView(UINT rootSignatureSlot, ShaderBuffer& resource, UINT offset)
 		{
-			if (setedRootSignature == nullptr)
+			if (cachedRootSignature == nullptr)
 				assert("Root Signature not set into the CommandList");
 
 			if (!resource.IsValid())
@@ -193,15 +187,14 @@ namespace PEPEngine
 
 			auto res = resource.GetElementResourceAddress(offset);
 
-			if (type == D3D12_COMMAND_LIST_TYPE_DIRECT)
-			{
-				cmdList->SetGraphicsRootUnorderedAccessView(rootSignatureSlot, res);
-			}
-
 			if (type == D3D12_COMMAND_LIST_TYPE_COMPUTE)
 			{
 				cmdList->SetComputeRootUnorderedAccessView(rootSignatureSlot, res);
 			}
+			else
+			{
+				cmdList->SetGraphicsRootUnorderedAccessView(rootSignatureSlot, res);
+			}			
 
 			TrackResource(resource);
 		}
@@ -210,49 +203,47 @@ namespace PEPEngine
 		void GCommandList::SetRoot32BitConstants(UINT rootSignatureSlot, UINT Count32BitValueToSet, const void* data,
 		                                         UINT DestOffsetIn32BitValueToSet) const
 		{
-			if (type == D3D12_COMMAND_LIST_TYPE_DIRECT)
-			{
-				cmdList->SetGraphicsRoot32BitConstants(rootSignatureSlot, Count32BitValueToSet, data,
-				                                       DestOffsetIn32BitValueToSet);
-			}
-
 			if (type == D3D12_COMMAND_LIST_TYPE_COMPUTE)
 			{
 				cmdList->SetComputeRoot32BitConstants(rootSignatureSlot, Count32BitValueToSet, data,
-				                                      DestOffsetIn32BitValueToSet);
+					DestOffsetIn32BitValueToSet);
 			}
+			else
+			{
+				cmdList->SetGraphicsRoot32BitConstants(rootSignatureSlot, Count32BitValueToSet, data,
+					DestOffsetIn32BitValueToSet);
+			}			
 		}
 
 		void GCommandList::SetRoot32BitConstant(UINT shaderRegister, UINT value, UINT offset) const
 		{
-			if (type == D3D12_COMMAND_LIST_TYPE_DIRECT)
+			if (type == D3D12_COMMAND_LIST_TYPE_COMPUTE)
+			{
+				cmdList->SetComputeRoot32BitConstant(shaderRegister, value, offset);
+			}			
+			else
 			{
 				cmdList->SetGraphicsRoot32BitConstant(shaderRegister, value, offset);
 			}
 
-			if (type == D3D12_COMMAND_LIST_TYPE_COMPUTE)
-			{
-				cmdList->SetComputeRoot32BitConstant(shaderRegister, value, offset);
-			}
+		
 		}
 
 
-		void GCommandList::SetRootDescriptorTable(UINT rootSignatureSlot, const GMemory* memory, UINT offset) const
+		void GCommandList::SetRootDescriptorTable(UINT rootSignatureSlot, const GDescriptor* memory, UINT offset) const
 		{
 			if (memory == nullptr || memory->IsNull())
 			{
 				assert("Memory null");
-			}
-
-
-			if (type == D3D12_COMMAND_LIST_TYPE_DIRECT)
-			{
-				cmdList->SetGraphicsRootDescriptorTable(rootSignatureSlot, memory->GetGPUHandle(offset));
-			}
+			}		
 
 			if (type == D3D12_COMMAND_LIST_TYPE_COMPUTE)
 			{
 				cmdList->SetComputeRootDescriptorTable(rootSignatureSlot, memory->GetGPUHandle(offset));
+			}
+			else
+			{
+				cmdList->SetGraphicsRootDescriptorTable(rootSignatureSlot, memory->GetGPUHandle(offset));
 			}
 		}
 
@@ -493,7 +484,7 @@ namespace PEPEngine
 
 			ReleaseTrackedObjects();
 
-			setedRootSignature = nullptr;
+			cachedRootSignature = nullptr;
 			setedPSO = nullptr;
 			setedPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
 
@@ -547,7 +538,7 @@ namespace PEPEngine
 			cmdList->IASetPrimitiveTopology(setedPrimitiveTopology);
 		}
 
-		void GCommandList::ClearRenderTarget(GMemory* memory, size_t offset, const FLOAT rgba[4], D3D12_RECT* rects,
+		void GCommandList::ClearRenderTarget(GDescriptor* memory, size_t offset, const FLOAT rgba[4], D3D12_RECT* rects,
 		                                     size_t rectCount) const
 		{
 			if (memory == nullptr || memory->IsNull())
@@ -557,7 +548,7 @@ namespace PEPEngine
 			cmdList->ClearRenderTargetView(memory->GetCPUHandle(offset), rgba, rectCount, rects);
 		}
 
-		void GCommandList::SetRenderTargets(size_t RTCount, GMemory* rtvMemory, size_t rtvOffset, GMemory* dsvMemory,
+		void GCommandList::SetRenderTargets(size_t RTCount, GDescriptor* rtvMemory, size_t rtvOffset, GDescriptor* dsvMemory,
 		                                    size_t dsvOffset, BOOL isSingleHandle) const
 		{
 			auto* rtvPtr = (rtvMemory == nullptr || rtvMemory->IsNull())
@@ -571,7 +562,7 @@ namespace PEPEngine
 			cmdList->OMSetRenderTargets(RTCount, rtvPtr, isSingleHandle, dsvPtr);
 		}
 
-		void GCommandList::ClearDepthStencil(GMemory* dsvMemory, size_t dsvOffset, D3D12_CLEAR_FLAGS flags,
+		void GCommandList::ClearDepthStencil(GDescriptor* dsvMemory, size_t dsvOffset, D3D12_CLEAR_FLAGS flags,
 		                                     FLOAT depthValue,
 		                                     UINT stencilValue, D3D12_RECT* rects, size_t rectCount) const
 		{
@@ -579,5 +570,4 @@ namespace PEPEngine
 			                               rectCount,
 			                               rects);
 		}
-	}
 }

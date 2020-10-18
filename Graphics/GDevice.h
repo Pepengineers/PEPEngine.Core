@@ -18,7 +18,7 @@ namespace PEPEngine
 		class GResource;
 		class GAllocator;
 		class GDeviceFactory;
-		class GMemory;
+		class GDescriptor;
 
 		class GDevice
 		{
@@ -67,7 +67,7 @@ namespace PEPEngine
 
 			void ResetAllocator(uint64_t frameCount);
 
-			GMemory AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t descriptorCount = 1);
+			GDescriptor AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t descriptorCount = 1);
 
 			UINT GetNodeMask() const;
 

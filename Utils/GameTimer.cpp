@@ -1,11 +1,9 @@
 #include "pch.h"
-#include <windows.h>
+#include <Windows.h>
 #include "GameTimer.h"
 
-namespace PEPEngine
+namespace PEPEngine::Utils
 {
-	namespace Utils
-	{
 		GameTimer::GameTimer()
 			: mSecondsPerCount(0.0), mDeltaTime(-1.0), mBaseTime(0),
 			  mPausedTime(0), mPrevTime(0), mCurrTime(0), mStopped(false)
@@ -121,5 +119,4 @@ namespace PEPEngine
 				mDeltaTime = 0.0;
 			}
 		}
-	}
 }

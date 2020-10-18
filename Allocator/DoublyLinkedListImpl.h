@@ -1,9 +1,7 @@
 #include "DoublyLinkedList.h"
 
-namespace PEPEngine
+namespace PEPEngine::Allocator
 {
-	namespace Allocator
-	{
 		template <class T>
 		DoublyLinkedList<T>::DoublyLinkedList()
 		{
@@ -83,5 +81,4 @@ namespace PEPEngine
 				}
 			}
 		}
-	}
 }

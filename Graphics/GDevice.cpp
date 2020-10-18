@@ -7,10 +7,8 @@
 #include "GResource.h"
 #include "MemoryAllocator.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
 		using namespace Utils;
 
 		UINT GDevice::GetNodeMask() const
@@ -252,7 +250,7 @@ namespace PEPEngine
 			}
 		}
 
-		GMemory GDevice::AllocateDescriptors(const D3D12_DESCRIPTOR_HEAP_TYPE type, const uint32_t descriptorCount)
+		GDescriptor GDevice::AllocateDescriptors(const D3D12_DESCRIPTOR_HEAP_TYPE type, const uint32_t descriptorCount)
 		{
 			auto allocator = graphicAllocators.value()[type];
 			return allocator.value()->Allocate(descriptorCount);
@@ -297,5 +295,4 @@ namespace PEPEngine
 				}
 			}
 		}
-	}
 }

@@ -1,10 +1,8 @@
 #include "CAllocator.h"
 #include <stdlib.h>     /* malloc, free */
 
-namespace PEPEngine
+namespace PEPEngine::Allocator
 {
-	namespace Allocator
-	{
 		CAllocator::CAllocator()
 			: Allocator(0)
 		{
@@ -27,7 +25,6 @@ namespace PEPEngine
 		{
 			free(ptr);
 		}
-	}
 }
 
 #include "pch.h"

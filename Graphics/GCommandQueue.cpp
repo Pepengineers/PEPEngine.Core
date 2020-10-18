@@ -8,10 +8,8 @@
 #include "GResourceStateTracker.h"
 #include "pix3.h"
 
-namespace PEPEngine
+namespace PEPEngine::Graphics
 {
-	namespace Graphics
-	{
 		GCommandQueue::GCommandQueue(const std::shared_ptr<GDevice> device, D3D12_COMMAND_LIST_TYPE type) :
 			type(type)
 			, device(device)
@@ -320,5 +318,4 @@ namespace PEPEngine
 				std::this_thread::yield();
 			}
 		}
-	}
 }

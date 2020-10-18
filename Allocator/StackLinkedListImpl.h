@@ -1,10 +1,8 @@
 #include "StackLinkedList.h"
 #include "pch.h"
 
-namespace PEPEngine
+namespace PEPEngine::Allocator
 {
-	namespace Allocator
-	{
 		template <class T>
 		void StackLinkedList<T>::push(Node* newNode)
 		{
@@ -19,5 +17,4 @@ namespace PEPEngine
 			head = head->next;
 			return top;
 		}
-	}
 }
