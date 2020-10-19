@@ -115,16 +115,15 @@ namespace PEPEngine
 				}
 
 				D3D12_RESOURCE_STATES State;
-				custom_map<UINT, D3D12_RESOURCE_STATES> SubresourceState = MemoryAllocator::CreateMap<
-					UINT, D3D12_RESOURCE_STATES>();
+				std::map<UINT, D3D12_RESOURCE_STATES> SubresourceState;
 			};
 
-			using ResourceStateMap = custom_unordered_map<ID3D12Resource*, ResourceState>;
+			using ResourceStateMap = std::unordered_map<ID3D12Resource*, ResourceState>;
 
 			// The final (last known state) of the resources within a command list.
 			// The final resource state is committed to the global resource state when the 
 			// command list is closed but before it is executed on the command queue.
-			ResourceStateMap finalResourceState = MemoryAllocator::CreateUnorderedMap<ID3D12Resource*, ResourceState>();
+			ResourceStateMap finalResourceState;
 
 			// The global resource state array (map) stores the state of a resource
 			// between command list execution.
