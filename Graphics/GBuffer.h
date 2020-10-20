@@ -18,6 +18,9 @@ namespace PEPEngine
 			UINT count;
 			DWORD bufferSize = 0;
 			const DXGI_FORMAT IndexFormat = DXGI_FORMAT_R32_UINT;
+			
+			D3D12_INDEX_BUFFER_VIEW ibv = {};
+			D3D12_VERTEX_BUFFER_VIEW vbv = {};
 
 		public:
 
@@ -30,6 +33,8 @@ namespace PEPEngine
 				this->bufferSize = rhs.bufferSize;
 				this->stride = rhs.stride;
 				this->count = rhs.count;
+				this->ibv = rhs.ibv;
+				this->vbv = rhs.vbv;
 			}
 
 			GBuffer& operator=(const GBuffer& a)
@@ -39,6 +44,8 @@ namespace PEPEngine
 				this->bufferSize = a.bufferSize;
 				this->stride = a.stride;
 				this->count = a.count;
+				this->ibv = a.ibv;
+				this->vbv = a.vbv;
 				return *this;
 			}
 
@@ -51,9 +58,9 @@ namespace PEPEngine
 
 			ComPtr<ID3DBlob> GetCPUResource() const;
 
-			D3D12_INDEX_BUFFER_VIEW IndexBufferView() const;
+			D3D12_INDEX_BUFFER_VIEW* IndexBufferView() ;
 
-			D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const;
+			D3D12_VERTEX_BUFFER_VIEW* VertexBufferView() ;
 
 		public:
 

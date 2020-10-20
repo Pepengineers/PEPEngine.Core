@@ -27,22 +27,14 @@ namespace PEPEngine::Graphics
 		return bufferCPU;
 	}
 
-	D3D12_INDEX_BUFFER_VIEW GBuffer::IndexBufferView() const
+	D3D12_INDEX_BUFFER_VIEW* GBuffer::IndexBufferView() 
 	{
-		D3D12_INDEX_BUFFER_VIEW ibv;
-		ibv.BufferLocation = dxResource->GetGPUVirtualAddress();
-		ibv.Format = IndexFormat;
-		ibv.SizeInBytes = bufferSize;
-		return ibv;
+		return &ibv;
 	}
 
-	D3D12_VERTEX_BUFFER_VIEW GBuffer::VertexBufferView() const
+	D3D12_VERTEX_BUFFER_VIEW* GBuffer::VertexBufferView() 
 	{
-		D3D12_VERTEX_BUFFER_VIEW vbv;
-		vbv.BufferLocation = dxResource->GetGPUVirtualAddress();
-		vbv.StrideInBytes = stride;
-		vbv.SizeInBytes = bufferSize;
-		return vbv;
+		return &vbv;
 	}
 
 
@@ -71,5 +63,13 @@ namespace PEPEngine::Graphics
 		bufferSize = stride * count;
 		ThrowIfFailed(D3DCreateBlob(bufferSize, bufferCPU.GetAddressOf()));
 		CopyMemory(bufferCPU->GetBufferPointer(), data, bufferSize);
+
+		ibv.BufferLocation = dxResource->GetGPUVirtualAddress();
+		ibv.Format = IndexFormat;
+		ibv.SizeInBytes = bufferSize;
+
+		vbv.BufferLocation = dxResource->GetGPUVirtualAddress();
+		vbv.StrideInBytes = stride;
+		vbv.SizeInBytes = bufferSize;
 	}
 }
