@@ -32,14 +32,14 @@ namespace PEPEngine::Graphics
 				resDesc.DepthOrArraySize = depthOrArraySize;
 
 				auto device = texture.device->GetDXDevice();
-
+								
 				ThrowIfFailed(device->CreateCommittedResource(
 					&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 					D3D12_HEAP_FLAG_NONE,
 					&resDesc,
 					D3D12_RESOURCE_STATE_COMMON,
 					texture.clearValue.get(),
-					IID_PPV_ARGS(&texture.dxResource)
+					IID_PPV_ARGS(texture.dxResource.ReleaseAndGetAddressOf())
 				));
 
 				texture.dxResource->SetName(texture.GetName().c_str());
