@@ -64,6 +64,9 @@ namespace PEPEngine
 
 			virtual void Reset();
 
+			std::shared_ptr<GDevice>& GetDevice();
+			std::wstring GetName() const;
+
 		protected:
 			std::shared_ptr<GDevice> device;
 			uint64_t id = 0;

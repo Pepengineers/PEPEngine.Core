@@ -213,10 +213,19 @@ namespace PEPEngine::Graphics
 				dxResource.Reset();
 			}
 
-
 			if (clearValue)
 			{
 				clearValue.reset();
 			}
+		}
+
+		std::shared_ptr<GDevice>& GResource::GetDevice()
+		{
+			return device;
+		}
+
+		std::wstring GResource::GetName() const
+		{
+			return resourceName;
 		}
 }
