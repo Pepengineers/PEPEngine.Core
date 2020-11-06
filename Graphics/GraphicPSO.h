@@ -32,6 +32,7 @@ namespace PEPEngine
 				SsaoBlur,
 				Debug,
 				Quad,
+				UI,
 				Count
 			};
 		};
