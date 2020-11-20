@@ -104,6 +104,8 @@ namespace PEPEngine::Graphics
 			genMipMapPSO.SetRootSignature(signature);
 			genMipMapPSO.Initialize(textures[0]->device);
 
+
+			
 			cmdList->SetRootSignature(&signature);
 			cmdList->SetPipelineState(genMipMapPSO);
 

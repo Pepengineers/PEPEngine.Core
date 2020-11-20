@@ -33,6 +33,7 @@ namespace PEPEngine
 				Debug,
 				Quad,
 				UI,
+				Particle,
 				Count
 			};
 		};

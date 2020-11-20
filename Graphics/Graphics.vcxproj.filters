@@ -48,9 +48,6 @@
     <ClInclude Include="ComputePSO.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="GBuffer.h">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="GCommandList.h">
       <Filter>Header Files\Render</Filter>
     </ClInclude>
@@ -102,6 +99,12 @@
     <ClInclude Include="GDescriptorHeap.h">
       <Filter>Header Files\Allocators</Filter>
     </ClInclude>
+    <ClInclude Include="GMeshBuffer.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GBuffer.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ComputePSO.cpp">
@@ -109,9 +112,6 @@
     </ClCompile>
     <ClCompile Include="GAllocator.cpp">
       <Filter>Source Files\Allocators</Filter>
-    </ClCompile>
-    <ClCompile Include="GBuffer.cpp">
-      <Filter>Source Files\Objects</Filter>
     </ClCompile>
     <ClCompile Include="GCommandList.cpp">
       <Filter>Source Files\Render</Filter>
@@ -160,6 +160,12 @@
     </ClCompile>
     <ClCompile Include="GDescriptorHeap.cpp">
       <Filter>Source Files\Allocators</Filter>
+    </ClCompile>
+    <ClCompile Include="GMeshBuffer.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="GBuffer.cpp">
+      <Filter>Source Files\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

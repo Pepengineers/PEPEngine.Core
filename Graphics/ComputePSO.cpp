@@ -8,16 +8,23 @@ namespace PEPEngine::Graphics
 		{
 		}
 
+		ComputePSO::~ComputePSO()
+		{
+			pso.ReleaseAndGetAddressOf();
+			computePSOdesc = {};
+		}
 
 		void ComputePSO::Initialize(const std::shared_ptr<GDevice> device)
 		{
-			ThrowIfFailed(
-				device->GetDXDevice()->CreateComputePipelineState(&computePSOdesc, IID_PPV_ARGS(&m_PipelineState)));
-		}
+			const auto result = device->GetDXDevice()->CreateComputePipelineState(&computePSOdesc, IID_PPV_ARGS(&pso));
 
+
+			ThrowIfFailed(result);
+		}
+	
 		ComPtr<ID3D12PipelineState> ComputePSO::GetPSO() const
 		{
-			return m_PipelineState;
+			return pso;
 		}
 
 		void ComputePSO::SetRootSignature(GRootSignature& sign)

@@ -10,12 +10,11 @@ namespace PEPEngine
 {
 	namespace Graphics
 	{
-		class ShaderBuffer;
+		
 		using namespace Microsoft::WRL;
 
 		class GCommandQueue;
-
-
+		class GBuffer;
 		class GDevice;
 		class GResource;
 		class GTexture;
@@ -75,11 +74,11 @@ namespace PEPEngine
 
 			void SetRootSignature(GRootSignature* signature);
 
-			void SetRootShaderResourceView(UINT rootSignatureSlot, ShaderBuffer& resource, UINT offset = 0);
+			void SetRootShaderResourceView(UINT rootSignatureSlot, GBuffer& resource, UINT offset = 0);
 
-			void SetRootConstantBufferView(UINT rootSignatureSlot, ShaderBuffer& resource, UINT offset = 0);
+			void SetRootConstantBufferView(UINT rootSignatureSlot, GBuffer& resource, UINT offset = 0);
 
-			void SetRootUnorderedAccessView(UINT rootSignatureSlot, ShaderBuffer& resource, UINT offset = 0);
+			void SetRootUnorderedAccessView(UINT rootSignatureSlot, GBuffer& resource, UINT offset = 0);
 
 			void SetRoot32BitConstants(UINT rootSignatureSlot, UINT Count32BitValueToSet, const void* data,
 			                           UINT DestOffsetIn32BitValueToSet) const;
@@ -89,6 +88,8 @@ namespace PEPEngine
 			void SetRootDescriptorTable(UINT rootSignatureSlot, const GDescriptor* memory, UINT offset = 0) const;
 
 			void UpdateSubresource(GResource& destResource, D3D12_SUBRESOURCE_DATA* subresources,
+			                       size_t countSubresources);
+			void UpdateSubresource(ComPtr<ID3D12Resource> destResource, D3D12_SUBRESOURCE_DATA* subresources,
 			                       size_t countSubresources);
 
 			void SetViewports(const D3D12_VIEWPORT* viewports, size_t count) const;

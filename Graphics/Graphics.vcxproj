@@ -165,6 +165,7 @@
   <ItemGroup>
     <ClInclude Include="D3DShaderLoad.h" />
     <ClInclude Include="GBuffer.h" />
+    <ClInclude Include="GMeshBuffer.h" />
     <ClInclude Include="GCommandList.h" />
     <ClInclude Include="GCommandQueue.h" />
     <ClInclude Include="DirectXBuffers.h" />
@@ -188,6 +189,7 @@
   <ItemGroup>
     <ClCompile Include="DirectXBuffers.cpp" />
     <ClCompile Include="GBuffer.cpp" />
+    <ClCompile Include="GMeshBuffer.cpp" />
     <ClCompile Include="GCommandList.cpp" />
     <ClCompile Include="GCommandQueue.cpp" />
     <ClCompile Include="ComputePSO.cpp" />

@@ -1,5 +1,4 @@
 #pragma once
-
 #include "GResource.h"
 
 using namespace Microsoft::WRL;
@@ -14,61 +13,37 @@ namespace PEPEngine
 		{
 		protected:
 			ComPtr<ID3DBlob> bufferCPU;
-			UINT stride;
 			UINT count;
+			UINT stride;
 			DWORD bufferSize = 0;
-			const DXGI_FORMAT IndexFormat = DXGI_FORMAT_R32_UINT;
-			
-			D3D12_INDEX_BUFFER_VIEW ibv = {};
-			D3D12_VERTEX_BUFFER_VIEW vbv = {};
-
+			D3D12_GPU_VIRTUAL_ADDRESS address{};
 		public:
 
-			static GBuffer CreateBuffer(std::shared_ptr<GCommandList> cmdList, void* data, UINT elementSize, UINT count,
-			                            const std::wstring& name = L"");
+			GBuffer(std::shared_ptr<GCommandList> cmdList, const std::wstring& name,
+				const D3D12_RESOURCE_DESC& resourceDesc, UINT elementSize, UINT elementCount, void* data);
 
-			GBuffer(const GBuffer& rhs) : GResource(rhs)
-			{
-				this->bufferCPU = rhs.bufferCPU;
-				this->bufferSize = rhs.bufferSize;
-				this->stride = rhs.stride;
-				this->count = rhs.count;
-				this->ibv = rhs.ibv;
-				this->vbv = rhs.vbv;
-			}
+			GBuffer(std::shared_ptr<GDevice> device, const std::wstring& name,
+				const D3D12_RESOURCE_DESC& resourceDesc, UINT elementSize, UINT elementCount, const D3D12_CLEAR_VALUE* clearValue = nullptr, D3D12_RESOURCE_STATES initState = D3D12_RESOURCE_STATE_COMMON,
+				D3D12_HEAP_PROPERTIES heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+				D3D12_HEAP_FLAGS heapFlags = D3D12_HEAP_FLAG_NONE);
 
-			GBuffer& operator=(const GBuffer& a)
-			{
-				GResource::operator=(a);
-				this->bufferCPU = a.bufferCPU;
-				this->bufferSize = a.bufferSize;
-				this->stride = a.stride;
-				this->count = a.count;
-				this->ibv = a.ibv;
-				this->vbv = a.vbv;
-				return *this;
-			}
+			void LoadData(void* data, std::shared_ptr<GCommandList> cmdList);
 
+			GBuffer(const GBuffer& rhs);
 
-			UINT GetElementsCount() const;
+			GBuffer& operator=(const GBuffer& a);
+
+			D3D12_GPU_VIRTUAL_ADDRESS GetElementResourceAddress(UINT index) const;
+
+			void Reset() override;
+
+			UINT GetElementCount() const;
 
 			DWORD GetBufferSize() const;
 
 			UINT GetStride() const;
 
 			ComPtr<ID3DBlob> GetCPUResource() const;
-
-			D3D12_INDEX_BUFFER_VIEW* IndexBufferView() ;
-
-			D3D12_VERTEX_BUFFER_VIEW* VertexBufferView() ;
-
-		public:
-
-			GBuffer(std::shared_ptr<GDevice> device, const std::wstring& name, const D3D12_RESOURCE_DESC& resourceDesc,
-			        UINT elementSize, UINT elementCount,
-			        void* data);
-
-		private:
 		};
 	}
 }

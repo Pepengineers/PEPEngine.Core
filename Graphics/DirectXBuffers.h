@@ -2,43 +2,32 @@
 
 
 #include "d3dUtil.h"
-#include "GResource.h"
+#include "GBuffer.h"
 using namespace Microsoft::WRL;
 
 namespace PEPEngine
 {
 	namespace Graphics
 	{
-		class ShaderBuffer : public GResource
+		class UploadBuffer : public GBuffer
 		{
 		public:
-			ShaderBuffer(std::shared_ptr<GDevice> device, UINT elementCount, UINT elementByteSize,
-			             std::wstring name = L"");
+			UploadBuffer(std::shared_ptr<GDevice> device, UINT elementCount, UINT elementByteSize,
+			             std::wstring name = L"", D3D12_RESOURCE_FLAGS flag = D3D12_RESOURCE_FLAG_NONE);
 
-			ShaderBuffer(const ShaderBuffer& rhs) = delete;
-			ShaderBuffer& operator=(const ShaderBuffer& rhs) = delete;
+			UploadBuffer(const UploadBuffer& rhs) = delete;
+			UploadBuffer& operator=(const UploadBuffer& rhs) = delete;
 
-			~ShaderBuffer();
+			~UploadBuffer();
 
 			void CopyData(int elementIndex, const void* data, size_t size) const;
-
-			D3D12_GPU_VIRTUAL_ADDRESS GetElementResourceAddress(UINT index = 0) const;
-
-			UINT GetElementByteSize() const;
-
-			UINT GetElementCount() const;
-
-			void Reset() override;;
-
-		protected:
-			D3D12_GPU_VIRTUAL_ADDRESS address;
-			UINT elementCount = 0;
+			
+		protected:			
 			BYTE* mappedData = nullptr;
-			UINT elementByteSize = 0;
 		};
 
 		template <typename T>
-		class ConstantBuffer : public virtual ShaderBuffer
+		class ConstantUploadBuffer : public virtual UploadBuffer
 		{
 		public:
 			// Constant buffer elements need to be multiples of 256 bytes.
@@ -48,31 +37,31 @@ namespace PEPEngine
 			//  UINT64 OffsetInBytes; // multiple of 256
 			//  UINT  SizeInBytes;  // multiple of 256
 			// } D3D12_CONSTANT_BUFFER_VIEW_DESC;
-			ConstantBuffer(const std::shared_ptr<GDevice> device, UINT elementCount, std::wstring name = L"") :
-				ShaderBuffer(
+			ConstantUploadBuffer(const std::shared_ptr<GDevice> device, UINT elementCount, std::wstring name = L"") :
+				UploadBuffer(
 					device, elementCount, Utils::d3dUtil::CalcConstantBufferByteSize(sizeof(T)), name = L"")
 			{
 			}
 
 			void CopyData(int elementIndex, const T& data)
 			{
-				ShaderBuffer::CopyData(elementIndex, &data, sizeof(T));
+				UploadBuffer::CopyData(elementIndex, &data, sizeof(T));
 			}
 		};
 
 		template <typename T>
-		class UploadBuffer : public virtual ShaderBuffer
+		class StructuredUploadBuffer : public virtual UploadBuffer
 		{
 		public:
-			UploadBuffer(const std::shared_ptr<GDevice> device, UINT elementCount, std::wstring name = L"") :
-				ShaderBuffer(
-					device, elementCount, (sizeof(T)), name)
+			StructuredUploadBuffer(const std::shared_ptr<GDevice> device, UINT elementCount, std::wstring name = L"", D3D12_RESOURCE_FLAGS flag = D3D12_RESOURCE_FLAG_NONE) :
+				UploadBuffer(
+					device, elementCount, (sizeof(T)), name, flag)
 			{
 			}
 
 			void CopyData(int elementIndex, const T& data)
 			{
-				ShaderBuffer::CopyData(elementIndex, &data, sizeof(T));
+				UploadBuffer::CopyData(elementIndex, &data, sizeof(T));
 			}
 		};
 	}

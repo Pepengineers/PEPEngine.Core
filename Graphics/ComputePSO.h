@@ -20,20 +20,22 @@ namespace PEPEngine
 		{
 		public:
 			ComputePSO();
+			~ComputePSO();;
 
+			
 			ComPtr<ID3D12PipelineState> GetPSO() const;
 
 			void SetRootSignature(GRootSignature& sign);
 
 			void SetShader(GShader* shader);
-
+			
 			void Initialize(std::shared_ptr<GDevice> device);
 		private:
 
 
 			D3D12_COMPUTE_PIPELINE_STATE_DESC computePSOdesc{};
 
-			ComPtr<ID3D12PipelineState> m_PipelineState;
+			ComPtr<ID3D12PipelineState> pso;
 		};
 	}
 }

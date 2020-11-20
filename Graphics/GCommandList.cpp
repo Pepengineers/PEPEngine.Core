@@ -1,6 +1,5 @@
 #include "GCommandList.h"
 #include "ComputePSO.h"
-
 #include "GDataUploader.h"
 #include "GResource.h"
 #include "GResourceStateTracker.h"
@@ -10,6 +9,7 @@
 #include "GDevice.h"
 #include "GTexture.h"
 #include "GDescriptorHeap.h"
+#include "GBuffer.h"
 
 namespace PEPEngine::Graphics
 {
@@ -133,7 +133,7 @@ namespace PEPEngine::Graphics
 			TrackResource(cachedRootSignature);
 		}
 
-		void GCommandList::SetRootShaderResourceView(UINT rootSignatureSlot, ShaderBuffer& resource, UINT offset)
+		void GCommandList::SetRootShaderResourceView(UINT rootSignatureSlot, GBuffer& resource, UINT offset)
 		{
 			assert(cachedRootSignature != nullptr && "Root Signature not set into the CommandList");
 
@@ -154,7 +154,7 @@ namespace PEPEngine::Graphics
 		}
 
 
-		void GCommandList::SetRootConstantBufferView(UINT rootSignatureSlot, ShaderBuffer& resource, UINT offset)
+		void GCommandList::SetRootConstantBufferView(UINT rootSignatureSlot, GBuffer& resource, UINT offset)
 		{
 			if (cachedRootSignature == nullptr)
 				assert("Root Signature not set into the CommandList");
@@ -162,7 +162,7 @@ namespace PEPEngine::Graphics
 			if (!resource.IsValid())
 				assert("Resource is invalid");
 
-			auto res = resource.GetElementResourceAddress(offset);
+			const auto res = resource.GetElementResourceAddress(offset);
 
 			if (type == D3D12_COMMAND_LIST_TYPE_COMPUTE)
 			{
@@ -177,7 +177,7 @@ namespace PEPEngine::Graphics
 		}
 
 
-		void GCommandList::SetRootUnorderedAccessView(UINT rootSignatureSlot, ShaderBuffer& resource, UINT offset)
+		void GCommandList::SetRootUnorderedAccessView(UINT rootSignatureSlot, GBuffer& resource, UINT offset)
 		{
 			if (cachedRootSignature == nullptr)
 				assert("Root Signature not set into the CommandList");
@@ -185,7 +185,7 @@ namespace PEPEngine::Graphics
 			if (!resource.IsValid())
 				assert("Resource is invalid");
 
-			auto res = resource.GetElementResourceAddress(offset);
+			const auto res = resource.GetElementResourceAddress(offset);
 
 			if (type == D3D12_COMMAND_LIST_TYPE_COMPUTE)
 			{
@@ -259,10 +259,16 @@ namespace PEPEngine::Graphics
 		void GCommandList::UpdateSubresource(GResource& destResource, D3D12_SUBRESOURCE_DATA* subresources,
 		                                     size_t countSubresources)
 		{
-			auto res = destResource.GetD3D12Resource();
+			UpdateSubresource(destResource.GetD3D12Resource(), subresources, countSubresources);			
+		}
+
+		void GCommandList::UpdateSubresource(ComPtr<ID3D12Resource> destResource, D3D12_SUBRESOURCE_DATA* subresources,
+			size_t countSubresources)
+		{
+			const auto res = destResource;
 
 			const UINT64 uploadBufferSize = GetRequiredIntermediateSize(res.Get(),
-			                                                            0, countSubresources);
+				0, countSubresources);
 
 			auto upload = UploadData(uploadBufferSize, nullptr, D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT);
 
@@ -270,13 +276,14 @@ namespace PEPEngine::Graphics
 			FlushResourceBarriers();
 
 			UpdateSubresources(cmdList.Get(),
-			                   res.Get(), &upload.d3d12Resource,
-			                   upload.Offset, 0, countSubresources,
-			                   subresources);
+				res.Get(), &upload.d3d12Resource,
+				upload.Offset, 0, countSubresources,
+				subresources);
 
 			TrackResource(res.Get());
 		}
 
+	
 		void GCommandList::SetViewports(const D3D12_VIEWPORT* viewports, size_t count) const
 		{
 			assert(count < D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE);
