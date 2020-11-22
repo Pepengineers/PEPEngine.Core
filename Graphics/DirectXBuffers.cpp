@@ -6,9 +6,9 @@ namespace PEPEngine::Graphics
 	using namespace Utils;
 
 	UploadBuffer::UploadBuffer(const std::shared_ptr<GDevice> device, UINT elementCount, UINT elementByteSize,
-	                           std::wstring name, D3D12_RESOURCE_FLAGS flag) :
-		GBuffer(device,  name, CD3DX12_RESOURCE_DESC::Buffer(elementCount * elementByteSize, flag), elementByteSize, elementCount, nullptr,
-		          D3D12_RESOURCE_STATE_GENERIC_READ, CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD))
+	                           const std::wstring& name, D3D12_RESOURCE_FLAGS flag, D3D12_RESOURCE_STATES state, D3D12_HEAP_PROPERTIES heapProp) :
+		GBuffer(device, elementByteSize, elementCount, name, flag,
+			state, heapProp)
 	{
 		ThrowIfFailed(dxResource->Map(0, nullptr, reinterpret_cast<void**>(&mappedData)));
 	}
@@ -25,5 +25,8 @@ namespace PEPEngine::Graphics
 		memcpy(&mappedData[elementIndex * stride], data, size);
 	}
 
-
+	void UploadBuffer::ReadData(int elementIndex, void* data, size_t size) const
+	{
+		memcpy(data, &mappedData[elementIndex * stride], size);
+	}
 }

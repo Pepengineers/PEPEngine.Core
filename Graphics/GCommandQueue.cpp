@@ -23,7 +23,7 @@ namespace PEPEngine::Graphics
 
 			ThrowIfFailed(device->GetDXDevice()->CreateCommandQueue(&desc, IID_PPV_ARGS(&commandQueue)));
 
-			ThrowIfFailed(device->GetDXDevice()->CreateFence(FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+			ThrowIfFailed(device->GetDXDevice()->CreateFence(FenceValue, D3D12_FENCE_FLAG_SHARED, IID_PPV_ARGS(&fence)));
 
 			switch (this->type)
 			{
@@ -100,6 +100,11 @@ namespace PEPEngine::Graphics
 
 			// Calculate the GPU execution time in microseconds.
 			return (timeStampDelta * 1000000) / GetTimestampFreq();
+		}
+
+		ComPtr<ID3D12Fence> GCommandQueue::GetFence() const
+		{
+			return fence;
 		}
 
 
@@ -224,6 +229,11 @@ namespace PEPEngine::Graphics
 			commandQueue->Wait(other.fence.Get(), other.FenceValue);
 		}
 
+		void GCommandQueue::Wait(const std::shared_ptr<GCommandQueue> other) const
+		{
+			commandQueue->Wait(other->fence.Get(), other->FenceValue);
+		}
+	
 		void GCommandQueue::Wait(const ComPtr<ID3D12Fence> otherFence, UINT64 otherFenceValue) const
 		{
 			commandQueue->Wait(otherFence.Get(), otherFenceValue);

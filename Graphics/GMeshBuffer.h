@@ -32,10 +32,9 @@ namespace PEPEngine
 			D3D12_VERTEX_BUFFER_VIEW* VertexBufferView();
 
 		private:
-			GMeshBuffer(std::shared_ptr<GCommandList> cmdList, const std::wstring& name,
-			            const D3D12_RESOURCE_DESC& resourceDesc,
+			GMeshBuffer(std::shared_ptr<GCommandList> cmdList,
 			            UINT elementSize, UINT elementCount,
-			            void* data);
+			            void* data, const std::wstring& name = L"");
 
 		private:
 		};

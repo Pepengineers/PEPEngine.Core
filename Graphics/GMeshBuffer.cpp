@@ -18,9 +18,8 @@ namespace PEPEngine::Graphics
 	GMeshBuffer GMeshBuffer::CreateBuffer(std::shared_ptr<GCommandList> cmdList, void* data, UINT elementSize,
 	                                      UINT count,
 	                                      const std::wstring& name)
-	{
-		const auto desc = CD3DX12_RESOURCE_DESC::Buffer(elementSize * count);
-		GMeshBuffer buffer(cmdList, name, desc, elementSize, count, data);
+	{		
+		GMeshBuffer buffer(cmdList,elementSize, count, data, name);
 		return buffer;
 	}
 
@@ -38,9 +37,8 @@ namespace PEPEngine::Graphics
 		return *this;
 	}
 
-	GMeshBuffer::GMeshBuffer(std::shared_ptr<GCommandList> cmdList, const std::wstring& name,
-	                         const D3D12_RESOURCE_DESC& resourceDesc, UINT elementSize, UINT elementCount,
-	                         void* data) : GBuffer(cmdList, name, resourceDesc, elementSize, elementCount, data)
+	GMeshBuffer::GMeshBuffer(std::shared_ptr<GCommandList> cmdList, UINT elementSize, UINT elementCount,
+	                         void* data, const std::wstring& name) : GBuffer(cmdList,  elementSize, elementCount, data, name)
 	{
 		ibv.BufferLocation = dxResource->GetGPUVirtualAddress();
 		ibv.Format = IndexFormat;

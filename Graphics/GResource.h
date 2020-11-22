@@ -52,7 +52,7 @@ namespace PEPEngine
 			void CreateShaderResourceView(const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc, GDescriptor* memory,
 			                              size_t offset = 0) const;
 			void CreateUnorderedAccessView(const D3D12_UNORDERED_ACCESS_VIEW_DESC* uavDesc, GDescriptor* memory,
-			                               size_t offset = 0) const;
+			                               size_t offset = 0,const ComPtr<ID3D12Resource> counterResource = nullptr) const;
 			void CreateRenderTargetView(const D3D12_RENDER_TARGET_VIEW_DESC* rtvDesc, GDescriptor* memory,
 			                            size_t offset = 0) const;
 			void CreateDepthStencilView(const D3D12_DEPTH_STENCIL_VIEW_DESC* dsvDesc, GDescriptor* memory,

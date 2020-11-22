@@ -44,6 +44,7 @@ namespace PEPEngine
 			void Flush();
 
 			void Wait(const GCommandQueue& other) const;
+			void Wait(std::shared_ptr<GCommandQueue> other) const;
 			void Wait(ComPtr<ID3D12Fence> otherFence, UINT64 otherFenceValue) const;
 
 			ComPtr<ID3D12CommandQueue> GetD3D12CommandQueue() const;
@@ -57,6 +58,8 @@ namespace PEPEngine
 			UINT64 GetTimestampFreq();
 
 			UINT64 GetTimestamp(UINT index);
+
+			ComPtr<ID3D12Fence> GetFence() const;
 
 		private:
 

@@ -178,9 +178,9 @@ namespace PEPEngine::Graphics
 		}
 
 		void GResource::CreateUnorderedAccessView(const D3D12_UNORDERED_ACCESS_VIEW_DESC* uavDesc, GDescriptor* memory,
-		                                          size_t offset) const
+		                                          size_t offset,const ComPtr<ID3D12Resource> counterResource) const
 		{
-			device->GetDXDevice()->CreateUnorderedAccessView(dxResource.Get(), nullptr, uavDesc,
+			device->GetDXDevice()->CreateUnorderedAccessView(dxResource.Get(), counterResource.Get(), uavDesc,
 			                                                 memory->GetCPUHandle(offset));
 		}
 

@@ -83,6 +83,13 @@ namespace PEPEngine::Graphics
 			return cpuBase.ptr == 0;
 		}
 
+		GDescriptor GDescriptor::Offset(uint32_t offset) const
+		{
+			assert(offset < descriptorCount && "Bad GMemmory offset");
+						
+			return GDescriptor(CD3DX12_CPU_DESCRIPTOR_HANDLE(cpuBase, offset, size), CD3DX12_GPU_DESCRIPTOR_HANDLE(gpuBase, offset, size), descriptorCount - offset, size, page);
+		}
+
 		D3D12_CPU_DESCRIPTOR_HANDLE GDescriptor::GetCPUHandle(uint32_t offset) const
 		{
 			assert(offset < descriptorCount && "Bad GMemmory offset");

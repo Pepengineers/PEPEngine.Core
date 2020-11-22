@@ -26,6 +26,9 @@ namespace PEPEngine
 
 			bool IsNull() const;
 
+			GDescriptor Offset(uint32_t offset) const;
+
+			
 			D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(uint32_t offset = 0) const;
 
 			D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(uint32_t offset = 0) const;

@@ -232,6 +232,8 @@ namespace PEPEngine::Graphics
 
 		void GCommandList::SetRootDescriptorTable(UINT rootSignatureSlot, const GDescriptor* memory, UINT offset) const
 		{
+
+			
 			if (memory == nullptr || memory->IsNull())
 			{
 				assert("Memory null");

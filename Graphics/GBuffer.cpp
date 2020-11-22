@@ -16,22 +16,22 @@ namespace PEPEngine::Graphics
 		address = 0;
 	}
 
-	GBuffer::GBuffer(std::shared_ptr<GCommandList> cmdList, const std::wstring& name,
-		const D3D12_RESOURCE_DESC& resourceDesc, UINT elementSize, UINT elementCount, void* data) :
-		GResource(cmdList->GetDevice(), resourceDesc, name), count(elementCount), stride(elementSize), bufferSize(stride* count)
+	GBuffer::GBuffer(std::shared_ptr<GCommandList> cmdList,
+		UINT elementSize, UINT elementCount, void* data,  const std::wstring& name, D3D12_RESOURCE_FLAGS flags) :
+		GResource(cmdList->GetDevice(), CD3DX12_RESOURCE_DESC::Buffer(elementSize* elementCount, flags), name), count(elementCount), stride(elementSize), bufferSize(stride* count)
 	{
 		address = dxResource->GetGPUVirtualAddress();
 		LoadData(data, cmdList);
 	}
 
-	GBuffer::GBuffer(std::shared_ptr<GDevice> device, const std::wstring& name, const D3D12_RESOURCE_DESC& resourceDesc,
-		UINT elementSize, UINT elementCount, const D3D12_CLEAR_VALUE* clearValue, D3D12_RESOURCE_STATES initState,
-		D3D12_HEAP_PROPERTIES heapProp, D3D12_HEAP_FLAGS heapFlags) : GResource(device, resourceDesc, name, clearValue, initState, heapProp, heapFlags), count(elementCount), stride(elementSize), bufferSize(stride* count)
+	GBuffer::GBuffer(std::shared_ptr<GDevice> device,
+		UINT elementSize, UINT elementCount, const std::wstring& name, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES initState,
+		D3D12_HEAP_PROPERTIES heapProp, D3D12_HEAP_FLAGS heapFlags) : GResource(device, CD3DX12_RESOURCE_DESC::Buffer(elementSize * elementCount,flags), name, nullptr, initState, heapProp, heapFlags), count(elementCount), stride(elementSize), bufferSize(stride* count)
 	{
 		address = dxResource->GetGPUVirtualAddress();
 	}
 
-	void GBuffer::LoadData(void* data, std::shared_ptr<GCommandList> cmdList)
+	void GBuffer::LoadData(const void* data, std::shared_ptr<GCommandList> cmdList)
 	{
 		ThrowIfFailed(D3DCreateBlob(bufferSize, bufferCPU.GetAddressOf()));
 		CopyMemory(bufferCPU->GetBufferPointer(), data, bufferSize);
@@ -42,10 +42,15 @@ namespace PEPEngine::Graphics
 		subResourceData.SlicePitch = subResourceData.RowPitch;
 
 		cmdList->UpdateSubresource(dxResource, &subResourceData, 1);
-		cmdList->TransitionBarrier(dxResource, D3D12_RESOURCE_STATE_COMMON);
 		cmdList->FlushResourceBarriers();
 	}
 
+	void GBuffer::ReadData(void* data) const
+	{
+		ThrowIfFailed(dxResource->Map(0, nullptr, reinterpret_cast<void**>(&data)));
+
+		dxResource->Unmap(0, nullptr);
+	}
 
 	GBuffer::GBuffer(const GBuffer& rhs) : GResource(rhs)
 	{
