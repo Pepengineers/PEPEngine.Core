@@ -31,6 +31,13 @@ namespace PEPEngine::Graphics
 		address = dxResource->GetGPUVirtualAddress();
 	}
 
+	GBuffer::GBuffer(std::shared_ptr<GDevice> device,
+		UINT elementSize, UINT elementCount, UINT aligment, const std::wstring& name, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES initState,
+		D3D12_HEAP_PROPERTIES heapProp, D3D12_HEAP_FLAGS heapFlags) : GResource(device, CD3DX12_RESOURCE_DESC::Buffer((((elementSize* elementCount) + aligment - 1) & ~(aligment - 1)) + sizeof(UINT), flags), name, nullptr, initState, heapProp, heapFlags), count(elementCount), stride(elementSize), bufferSize((((elementSize* elementCount) + aligment - 1) & ~(aligment - 1)) + sizeof(UINT))
+	{
+		address = dxResource->GetGPUVirtualAddress();
+	}
+	
 	void GBuffer::LoadData(const void* data, std::shared_ptr<GCommandList> cmdList)
 	{
 		ThrowIfFailed(D3DCreateBlob(bufferSize, bufferCPU.GetAddressOf()));

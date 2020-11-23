@@ -70,6 +70,8 @@ namespace PEPEngine::Graphics
 			                          queue->timestampResultBuffer.value().GetD3D12Resource().Get(), aligned);
 		}
 
+		
+	
 		D3D12_COMMAND_LIST_TYPE GCommandList::GetCommandListType() const
 		{
 			return type;
@@ -414,6 +416,13 @@ namespace PEPEngine::Graphics
 			TrackResource(srcRes.Get());
 		}
 
+		void GCommandList::CopyCounter(ComPtr<ID3D12Resource> dest_resource, UINT dest_offset, ComPtr<ID3D12Resource> source_resource)
+		{
+			TransitionBarrier(dest_resource, D3D12_RESOURCE_STATE_COPY_DEST);
+			TransitionBarrier(source_resource, D3D12_RESOURCE_STATE_COPY_SOURCE);
+			FlushResourceBarriers();
+			cmdList->CopyBufferRegion(dest_resource.Get(), dest_offset, source_resource.Get(), 0, 4);
+		}
 
 		void GCommandList::CopyTextureRegion(const GResource& dstRes, UINT DstX,
 		                                     UINT DstY,
@@ -422,6 +431,23 @@ namespace PEPEngine::Graphics
 			CopyTextureRegion(dstRes.GetD3D12Resource(), DstX, DstY, DstZ, srcRes.GetD3D12Resource(), srcBox);
 		}
 
+		void GCommandList::CopyBufferRegion(const GBuffer& dstRes, UINT DstOffset,
+			const GBuffer& srcRes, UINT SrcOffset, UINT numBytes)
+		{
+			CopyBufferRegion(dstRes.GetD3D12Resource(), DstOffset, srcRes.GetD3D12Resource(), SrcOffset, numBytes);
+		}
+
+		void GCommandList::CopyBufferRegion(ComPtr<ID3D12Resource> dstRes, UINT DstOffset,
+			const ComPtr<ID3D12Resource> srcRes, UINT SrcOffset, UINT numBytes)
+		{
+			TransitionBarrier(dstRes, D3D12_RESOURCE_STATE_COPY_DEST);
+			TransitionBarrier(srcRes, D3D12_RESOURCE_STATE_COPY_SOURCE);
+			FlushResourceBarriers();
+			cmdList->CopyBufferRegion(dstRes.Get(), DstOffset, srcRes.Get(), SrcOffset, numBytes);
+			TrackResource(dstRes.Get());
+			TrackResource(srcRes.Get());
+		}
+	
 		void GCommandList::CopyResource(ComPtr<ID3D12Resource> dstRes, ComPtr<ID3D12Resource> srcRes)
 		{
 			TransitionBarrier(dstRes, D3D12_RESOURCE_STATE_COPY_DEST);
@@ -579,4 +605,6 @@ namespace PEPEngine::Graphics
 			                               rectCount,
 			                               rects);
 		}
+
+		
 }

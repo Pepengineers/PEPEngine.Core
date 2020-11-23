@@ -13,6 +13,14 @@ namespace PEPEngine::Graphics
 		ThrowIfFailed(dxResource->Map(0, nullptr, reinterpret_cast<void**>(&mappedData)));
 	}
 
+	UploadBuffer::UploadBuffer(const std::shared_ptr<GDevice> device, UINT elementCount, UINT elementByteSize, UINT aligment,
+		const std::wstring& name, D3D12_RESOURCE_FLAGS flag, D3D12_RESOURCE_STATES state, D3D12_HEAP_PROPERTIES heapProp) :
+		GBuffer(device, elementByteSize, elementCount, aligment, name, flag,
+			state, heapProp)
+	{
+		ThrowIfFailed(dxResource->Map(0, nullptr, reinterpret_cast<void**>(&mappedData)));
+	}
+
 	UploadBuffer::~UploadBuffer()
 	{
 		if (dxResource != nullptr)

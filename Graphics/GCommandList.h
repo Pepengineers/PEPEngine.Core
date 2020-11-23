@@ -63,6 +63,7 @@ namespace PEPEngine
 			void BeginQuery(UINT index) const;
 			void EndQuery(UINT index) const;
 			void ResolveQuery(UINT index, UINT quriesCount, UINT64 aligned) const;
+			void ResolveSubresource(UINT index, UINT quriesCount, UINT64 aligned) const;
 
 			D3D12_COMMAND_LIST_TYPE GetCommandListType() const;
 
@@ -116,6 +117,8 @@ namespace PEPEngine
 			                       FLOAT depthValue = 1.0f, UINT stencilValue = 0, D3D12_RECT* rects = nullptr, size_t
 			                       rectCount = 0) const;
 
+			void SetCounterForStructeredBuffer(GBuffer& buffer, UINT value);
+
 			void TransitionBarrier(const GResource& resource, D3D12_RESOURCE_STATES stateAfter,
 			                       UINT subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
 			                       bool flushBarriers = false) const;
@@ -123,10 +126,15 @@ namespace PEPEngine
 			void CopyTextureRegion(ComPtr<ID3D12Resource> dstRes, UINT DstX,
 			                       UINT DstY,
 			                       UINT DstZ, ComPtr<ID3D12Resource> srcRes, const D3D12_BOX* srcBox);
+			void CopyCounter(ComPtr<ID3D12Resource> dest_resource, UINT dest_offset,
+			                 ComPtr<ID3D12Resource> source_resource);
 
 			void CopyTextureRegion(const GResource& dstRes, UINT DstX, UINT DstY, UINT DstZ, const GResource& srcRes,
 			                       const D3D12_BOX* srcBox);
 
+			void CopyBufferRegion(const GBuffer& dstRes, UINT DstOffset,
+				const GBuffer& srcRes, UINT SrcOffset, UINT numBytes);
+			
 			void TransitionBarrier(ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES stateAfter,
 			                       UINT subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
 			                       bool flushBarriers = false) const;
@@ -142,6 +150,9 @@ namespace PEPEngine
 			void FlushResourceBarriers() const;
 
 			void CopyResource(const GResource& dstRes, const GResource& srcRes);
+			void CopyBufferRegion(ComPtr<ID3D12Resource> dstRes, UINT DstOffset, ComPtr<ID3D12Resource> srcRes,
+			                      UINT SrcOffset,
+			                      UINT numBytes);
 			void CopyResource(ComPtr<ID3D12Resource> dstRes, ComPtr<ID3D12Resource> srcRes);
 
 			/**

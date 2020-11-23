@@ -448,6 +448,14 @@ namespace PEPEngine
 				// 512
 				return (byteSize + 255) & ~255;
 			}
+
+			static UINT CalcStructedCounteredBufferByteSize(UINT byteSize)
+			{
+				const UINT ali = D3D12_UAV_COUNTER_PLACEMENT_ALIGNMENT;
+				byteSize = (byteSize + ali - 1) & ~(ali - 1); // alignment the whole buffer to 256 bytes
+				byteSize += sizeof(UINT);// add counter at the end of buffer
+				return byteSize;
+			}
 		};
 
 		class DxException

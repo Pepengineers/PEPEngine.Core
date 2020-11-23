@@ -3,6 +3,7 @@
 
 #include "d3dUtil.h"
 #include "GBuffer.h"
+#include "GCommandList.h"
 using namespace Microsoft::WRL;
 
 namespace PEPEngine
@@ -14,6 +15,9 @@ namespace PEPEngine
 		public:
 			UploadBuffer(std::shared_ptr<GDevice> device, UINT elementCount, UINT elementByteSize,
 			             const std::wstring& name = L"", D3D12_RESOURCE_FLAGS flag = D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_PROPERTIES heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD));
+
+			UploadBuffer(std::shared_ptr<GDevice> device, UINT elementCount, UINT elementByteSize, UINT aligment,
+				const std::wstring& name = L"", D3D12_RESOURCE_FLAGS flag = D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_PROPERTIES heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD));
 
 			UploadBuffer(const UploadBuffer& rhs) = delete;
 			UploadBuffer& operator=(const UploadBuffer& rhs) = delete;
@@ -94,6 +98,32 @@ namespace PEPEngine
 			void ReadData(int elementIndex, T& data)
 			{
 				UploadBuffer::ReadData(elementIndex, &data, sizeof(T));
+			}
+		};
+
+		template <typename T>
+		class UnorderedCounteredStructBuffer: public GBuffer
+		{
+			std::shared_ptr<UploadBuffer> upload;
+			
+		public:
+			UnorderedCounteredStructBuffer(const std::shared_ptr<GDevice> device, UINT elementCount, std::wstring name = L"", D3D12_RESOURCE_FLAGS flag = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_HEAP_TYPE heapType = D3D12_HEAP_TYPE_DEFAULT) :
+				GBuffer(
+					device, (sizeof(T)), elementCount, D3D12_UAV_COUNTER_PLACEMENT_ALIGNMENT, name, flag, D3D12_RESOURCE_STATE_COMMON, CD3DX12_HEAP_PROPERTIES(heapType))
+			{
+				if(heapType == D3D12_HEAP_TYPE_DEFAULT)
+				{
+					upload = std::make_shared<UploadBuffer>(device, 1, (sizeof(T)), name + L" Upload");
+				}
+			}
+
+			UnorderedCounteredStructBuffer(const UnorderedCounteredStructBuffer& rhs) = delete;
+			UnorderedCounteredStructBuffer& operator=(const UnorderedCounteredStructBuffer& rhs) = delete;			
+
+			void SetCounterValue(std::shared_ptr<GCommandList> cmdList, UINT value) const
+			{
+				upload->CopyData(0, &value, sizeof(UINT));			
+				cmdList->CopyBufferRegion(dxResource, bufferSize - sizeof(UINT), upload->GetD3D12Resource(), 0, sizeof(UINT));
 			}
 		};
 	}
