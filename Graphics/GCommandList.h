@@ -133,7 +133,7 @@ namespace PEPEngine
 			                       const D3D12_BOX* srcBox);
 
 			void CopyBufferRegion(const GBuffer& dstRes, UINT DstOffset,
-				const GBuffer& srcRes, UINT SrcOffset, UINT numBytes);
+			                      const GBuffer& srcRes, UINT SrcOffset, UINT numBytes, bool copyBarier = true);
 			
 			void TransitionBarrier(ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES stateAfter,
 			                       UINT subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
@@ -150,9 +150,9 @@ namespace PEPEngine
 			void FlushResourceBarriers() const;
 
 			void CopyResource(const GResource& dstRes, const GResource& srcRes);
-			void CopyBufferRegion(ComPtr<ID3D12Resource> dstRes, UINT DstOffset, ComPtr<ID3D12Resource> srcRes,
+			void CopyBufferRegion(ComPtr<ID3D12Resource> dstRes, UINT DstOffset, const ComPtr<ID3D12Resource> srcRes,
 			                      UINT SrcOffset,
-			                      UINT numBytes);
+			                      UINT numBytes, bool copyBarier = true);
 			void CopyResource(ComPtr<ID3D12Resource> dstRes, ComPtr<ID3D12Resource> srcRes);
 
 			/**

@@ -21,6 +21,7 @@ namespace PEPEngine::Graphics
 		GResource(cmdList->GetDevice(), CD3DX12_RESOURCE_DESC::Buffer(elementSize* elementCount, flags), name), count(elementCount), stride(elementSize), bufferSize(stride* count)
 	{
 		address = dxResource->GetGPUVirtualAddress();
+		ThrowIfFailed(D3DCreateBlob(bufferSize, bufferCPU.GetAddressOf()));
 		LoadData(data, cmdList);
 	}
 
@@ -29,6 +30,7 @@ namespace PEPEngine::Graphics
 		D3D12_HEAP_PROPERTIES heapProp, D3D12_HEAP_FLAGS heapFlags) : GResource(device, CD3DX12_RESOURCE_DESC::Buffer(elementSize * elementCount,flags), name, nullptr, initState, heapProp, heapFlags), count(elementCount), stride(elementSize), bufferSize(stride* count)
 	{
 		address = dxResource->GetGPUVirtualAddress();
+		ThrowIfFailed(D3DCreateBlob(bufferSize, bufferCPU.GetAddressOf()));
 	}
 
 	GBuffer::GBuffer(std::shared_ptr<GDevice> device,
@@ -36,11 +38,11 @@ namespace PEPEngine::Graphics
 		D3D12_HEAP_PROPERTIES heapProp, D3D12_HEAP_FLAGS heapFlags) : GResource(device, CD3DX12_RESOURCE_DESC::Buffer((((elementSize* elementCount) + aligment - 1) & ~(aligment - 1)) + sizeof(UINT), flags), name, nullptr, initState, heapProp, heapFlags), count(elementCount), stride(elementSize), bufferSize((((elementSize* elementCount) + aligment - 1) & ~(aligment - 1)) + sizeof(UINT))
 	{
 		address = dxResource->GetGPUVirtualAddress();
+		ThrowIfFailed(D3DCreateBlob(bufferSize, bufferCPU.GetAddressOf()));
 	}
 	
-	void GBuffer::LoadData(const void* data, std::shared_ptr<GCommandList> cmdList)
+	void GBuffer::LoadData(const void* data, std::shared_ptr<GCommandList> cmdList) const
 	{
-		ThrowIfFailed(D3DCreateBlob(bufferSize, bufferCPU.GetAddressOf()));
 		CopyMemory(bufferCPU->GetBufferPointer(), data, bufferSize);
 
 		D3D12_SUBRESOURCE_DATA subResourceData = {};
@@ -52,12 +54,6 @@ namespace PEPEngine::Graphics
 		cmdList->FlushResourceBarriers();
 	}
 
-	void GBuffer::ReadData(void* data) const
-	{
-		ThrowIfFailed(dxResource->Map(0, nullptr, reinterpret_cast<void**>(&data)));
-
-		dxResource->Unmap(0, nullptr);
-	}
 
 	GBuffer::GBuffer(const GBuffer& rhs) : GResource(rhs)
 	{

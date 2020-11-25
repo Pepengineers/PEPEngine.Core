@@ -432,17 +432,20 @@ namespace PEPEngine::Graphics
 		}
 
 		void GCommandList::CopyBufferRegion(const GBuffer& dstRes, UINT DstOffset,
-			const GBuffer& srcRes, UINT SrcOffset, UINT numBytes)
+			const GBuffer& srcRes, UINT SrcOffset, UINT numBytes, bool copyBarier)
 		{
-			CopyBufferRegion(dstRes.GetD3D12Resource(), DstOffset, srcRes.GetD3D12Resource(), SrcOffset, numBytes);
+			CopyBufferRegion(dstRes.GetD3D12Resource(), DstOffset, srcRes.GetD3D12Resource(), SrcOffset, numBytes, copyBarier);
 		}
 
 		void GCommandList::CopyBufferRegion(ComPtr<ID3D12Resource> dstRes, UINT DstOffset,
-			const ComPtr<ID3D12Resource> srcRes, UINT SrcOffset, UINT numBytes)
+			const ComPtr<ID3D12Resource> srcRes, UINT SrcOffset, UINT numBytes, bool copyBarier)
 		{
-			TransitionBarrier(dstRes, D3D12_RESOURCE_STATE_COPY_DEST);
-			TransitionBarrier(srcRes, D3D12_RESOURCE_STATE_COPY_SOURCE);
-			FlushResourceBarriers();
+			if (copyBarier)
+			{
+				TransitionBarrier(dstRes, D3D12_RESOURCE_STATE_COPY_DEST);
+				TransitionBarrier(srcRes, D3D12_RESOURCE_STATE_COPY_SOURCE);
+				FlushResourceBarriers();
+			}
 			cmdList->CopyBufferRegion(dstRes.Get(), DstOffset, srcRes.Get(), SrcOffset, numBytes);
 			TrackResource(dstRes.Get());
 			TrackResource(srcRes.Get());

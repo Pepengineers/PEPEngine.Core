@@ -59,14 +59,11 @@ namespace PEPEngine
 		template <typename T>
 		class ReadBackBuffer : public virtual UploadBuffer
 		{
+			// Get the timestamp values from the result buffers.
+			D3D12_RANGE readRange = {};
+			const D3D12_RANGE emptyRange = {};
 		public:
-			// Constant buffer elements need to be multiples of 256 bytes.
-			// This is because the hardware can only view constant data
-			// at m*256 byte offsets and of n*256 byte lengths.
-			// typedef struct D3D12_CONSTANT_BUFFER_VIEW_DESC {
-			//  UINT64 OffsetInBytes; // multiple of 256
-			//  UINT  SizeInBytes;  // multiple of 256
-			// } D3D12_CONSTANT_BUFFER_VIEW_DESC;
+			
 			ReadBackBuffer(const std::shared_ptr<GDevice> device, UINT elementCount, std::wstring name = L"") :
 				UploadBuffer(
 					device, elementCount, (sizeof(T)), name, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK))
@@ -74,8 +71,8 @@ namespace PEPEngine
 			}
 
 			void ReadData(int elementIndex, T& data)
-			{
-				UploadBuffer::ReadData(elementIndex, &data, sizeof(T));
+			{				
+				data = std::move( reinterpret_cast<T*>(mappedData + elementIndex * sizeof(T))[0]);
 			}
 		};
 
@@ -105,16 +102,15 @@ namespace PEPEngine
 		class UnorderedCounteredStructBuffer: public GBuffer
 		{
 			std::shared_ptr<UploadBuffer> upload;
+			std::shared_ptr<ReadBackBuffer<UINT>> read;
 			
 		public:
-			UnorderedCounteredStructBuffer(const std::shared_ptr<GDevice> device, UINT elementCount, std::wstring name = L"", D3D12_RESOURCE_FLAGS flag = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_HEAP_TYPE heapType = D3D12_HEAP_TYPE_DEFAULT) :
+			UnorderedCounteredStructBuffer(const std::shared_ptr<GDevice> device, UINT elementCount, std::wstring name = L"") :
 				GBuffer(
-					device, (sizeof(T)), elementCount, D3D12_UAV_COUNTER_PLACEMENT_ALIGNMENT, name, flag, D3D12_RESOURCE_STATE_COMMON, CD3DX12_HEAP_PROPERTIES(heapType))
+					device, (sizeof(T)), elementCount, D3D12_UAV_COUNTER_PLACEMENT_ALIGNMENT, name, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON, CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT))
 			{
-				if(heapType == D3D12_HEAP_TYPE_DEFAULT)
-				{
-					upload = std::make_shared<UploadBuffer>(device, 1, (sizeof(T)), name + L" Upload");
-				}
+				upload = std::make_shared<UploadBuffer>(device, 1, (sizeof(UINT)), name + L" Upload");
+				read = std::make_shared<ReadBackBuffer<UINT>>(device, 1, name + L" ReadBack");
 			}
 
 			UnorderedCounteredStructBuffer(const UnorderedCounteredStructBuffer& rhs) = delete;
@@ -122,8 +118,24 @@ namespace PEPEngine
 
 			void SetCounterValue(std::shared_ptr<GCommandList> cmdList, UINT value) const
 			{
+				cmdList->TransitionBarrier(dxResource, D3D12_RESOURCE_STATE_COPY_DEST);
+				cmdList->FlushResourceBarriers();
+				
 				upload->CopyData(0, &value, sizeof(UINT));			
-				cmdList->CopyBufferRegion(dxResource, bufferSize - sizeof(UINT), upload->GetD3D12Resource(), 0, sizeof(UINT));
+				cmdList->CopyBufferRegion(dxResource, bufferSize - sizeof(UINT), upload->GetD3D12Resource(), 0, sizeof(UINT), false);
+			}
+
+			void CopyCounterForRead(std::shared_ptr<GCommandList> cmdList) const
+			{
+				cmdList->TransitionBarrier(dxResource, D3D12_RESOURCE_STATE_COPY_SOURCE);
+				cmdList->FlushResourceBarriers();
+				
+				cmdList->CopyBufferRegion(read->GetD3D12Resource(), 0, dxResource, bufferSize - sizeof(UINT), sizeof(UINT), true);			
+			}
+
+			void ReadCounter(UINT* counterValue) const
+			{
+				read->ReadData(0, *counterValue);
 			}
 		};
 	}
