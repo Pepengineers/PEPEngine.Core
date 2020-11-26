@@ -99,13 +99,13 @@ namespace PEPEngine
 		};
 
 		template <typename T>
-		class UnorderedCounteredStructBuffer: public GBuffer
+		class CounteredStructBuffer: public GBuffer
 		{
 			std::shared_ptr<UploadBuffer> upload;
 			std::shared_ptr<ReadBackBuffer<UINT>> read;
 			
 		public:
-			UnorderedCounteredStructBuffer(const std::shared_ptr<GDevice> device, UINT elementCount, std::wstring name = L"") :
+			CounteredStructBuffer(const std::shared_ptr<GDevice> device, UINT elementCount, std::wstring name = L"") :
 				GBuffer(
 					device, (sizeof(T)), elementCount, D3D12_UAV_COUNTER_PLACEMENT_ALIGNMENT, name, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON, CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT))
 			{
@@ -113,8 +113,8 @@ namespace PEPEngine
 				read = std::make_shared<ReadBackBuffer<UINT>>(device, 1, name + L" ReadBack");
 			}
 
-			UnorderedCounteredStructBuffer(const UnorderedCounteredStructBuffer& rhs) = delete;
-			UnorderedCounteredStructBuffer& operator=(const UnorderedCounteredStructBuffer& rhs) = delete;			
+			CounteredStructBuffer(const CounteredStructBuffer& rhs) = delete;
+			CounteredStructBuffer& operator=(const CounteredStructBuffer& rhs) = delete;			
 
 			void SetCounterValue(std::shared_ptr<GCommandList> cmdList, UINT value) const
 			{
