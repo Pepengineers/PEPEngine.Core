@@ -252,7 +252,7 @@ namespace PEPEngine::Graphics
 		}
 
 		UploadAllocation GCommandList::UploadData(size_t sizeInBytes, const void* bufferData,
-		                                          size_t alignment = 8) const
+		                                          size_t alignment = 0) const
 		{
 			const auto allocation = uploadBuffer->Allocate(sizeInBytes, alignment);
 			if (bufferData != nullptr)

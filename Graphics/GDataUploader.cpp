@@ -21,7 +21,7 @@ namespace PEPEngine::Graphics
 			pages.clear();
 		}
 
-		UploadAllocation GDataUploader::Allocate(size_t sizeInBytes, size_t alignment = 8)
+		UploadAllocation GDataUploader::Allocate(size_t sizeInBytes, size_t alignment)
 		{
 			for (auto&& page : pages)
 			{
@@ -39,10 +39,7 @@ namespace PEPEngine::Graphics
 			}
 			else
 			{
-				uint32_t newSize = Math::NextHighestPow2(static_cast<uint32_t>(sizeInBytes));
-
-				newSize = Math::IsAligned(newSize, alignment) ? sizeInBytes : Math::AlignUp(newSize, alignment);
-
+				const auto newSize = Math::AlignUp(sizeInBytes, alignment);				
 				page = CreatePage(newSize);
 			}
 			pages.push_back(std::move(page));

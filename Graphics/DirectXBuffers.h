@@ -72,7 +72,7 @@ namespace PEPEngine
 
 			void ReadData(int elementIndex, T& data)
 			{				
-				data = std::move( reinterpret_cast<T*>(mappedData + elementIndex * sizeof(T))[0]);
+				data =  reinterpret_cast<T*>(mappedData + elementIndex * sizeof(T))[0];
 			}
 		};
 
@@ -102,38 +102,35 @@ namespace PEPEngine
 		class CounteredStructBuffer: public GBuffer
 		{
 			std::shared_ptr<UploadBuffer> upload;
-			std::shared_ptr<ReadBackBuffer<UINT>> read;
+			std::shared_ptr<ReadBackBuffer<DWORD>> read;
 			
 		public:
 			CounteredStructBuffer(const std::shared_ptr<GDevice> device, UINT elementCount, std::wstring name = L"") :
 				GBuffer(
 					device, (sizeof(T)), elementCount, D3D12_UAV_COUNTER_PLACEMENT_ALIGNMENT, name, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON, CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT))
 			{
-				upload = std::make_shared<UploadBuffer>(device, 1, (sizeof(UINT)), name + L" Upload");
-				read = std::make_shared<ReadBackBuffer<UINT>>(device, 1, name + L" ReadBack");
+				upload = std::make_shared<UploadBuffer>(device, 1, (sizeof(DWORD)), name + L" Upload");
+				read = std::make_shared<ReadBackBuffer<DWORD>>(device, 1, name + L" ReadBack");
 			}
 
 			CounteredStructBuffer(const CounteredStructBuffer& rhs) = delete;
 			CounteredStructBuffer& operator=(const CounteredStructBuffer& rhs) = delete;			
 
-			void SetCounterValue(std::shared_ptr<GCommandList> cmdList, UINT value) const
+			void SetCounterValue(std::shared_ptr<GCommandList> cmdList, DWORD value) const
 			{
 				cmdList->TransitionBarrier(dxResource, D3D12_RESOURCE_STATE_COPY_DEST);
 				cmdList->FlushResourceBarriers();
 				
-				upload->CopyData(0, &value, sizeof(UINT));			
-				cmdList->CopyBufferRegion(dxResource, bufferSize - sizeof(UINT), upload->GetD3D12Resource(), 0, sizeof(UINT), false);
+				upload->CopyData(0, &value, sizeof(DWORD));
+				cmdList->CopyBufferRegion(dxResource, bufferSize - sizeof(DWORD), upload->GetD3D12Resource(), 0, sizeof(DWORD), false);
 			}
 
 			void CopyCounterForRead(std::shared_ptr<GCommandList> cmdList) const
 			{
-				cmdList->TransitionBarrier(dxResource, D3D12_RESOURCE_STATE_COPY_SOURCE);
-				cmdList->FlushResourceBarriers();
-				
-				cmdList->CopyBufferRegion(read->GetD3D12Resource(), 0, dxResource, bufferSize - sizeof(UINT), sizeof(UINT), true);			
+				cmdList->CopyBufferRegion(read->GetD3D12Resource(), 0, dxResource, bufferSize - sizeof(DWORD), sizeof(DWORD), true);
 			}
 
-			void ReadCounter(UINT* counterValue) const
+			void ReadCounter(DWORD* counterValue) const
 			{
 				read->ReadData(0, *counterValue);
 			}
