@@ -57,22 +57,28 @@ namespace PEPEngine
 		};
 
 		template <typename T>
-		class ReadBackBuffer : public virtual UploadBuffer
+		class ReadBackBuffer : public virtual GBuffer
 		{
 			// Get the timestamp values from the result buffers.
 			D3D12_RANGE readRange = {};
 			const D3D12_RANGE emptyRange = {};
+			BYTE* mappedData = nullptr;
 		public:
 			
 			ReadBackBuffer(const std::shared_ptr<GDevice> device, UINT elementCount, std::wstring name = L"") :
-				UploadBuffer(
+				GBuffer(
 					device, elementCount, (sizeof(T)), name, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK))
 			{
+				
 			}
 
 			void ReadData(int elementIndex, T& data)
-			{				
+			{
+				ThrowIfFailed(dxResource->Map(0, nullptr, reinterpret_cast<void**>(&mappedData)));
+				
 				data =  reinterpret_cast<T*>(mappedData + elementIndex * sizeof(T))[0];
+
+				dxResource->Unmap(0, nullptr);
 			}
 		};
 
