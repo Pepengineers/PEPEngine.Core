@@ -20,7 +20,7 @@ namespace PEPEngine
 		class GRootSignature
 		{
 			ComPtr<ID3D12RootSignature> signature;
-			CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc;
+			D3D12_ROOT_SIGNATURE_DESC rootSigDesc;
 
 
 			custom_vector<CD3DX12_ROOT_PARAMETER> slotRootParameters = MemoryAllocator::CreateVector<
@@ -62,7 +62,9 @@ namespace PEPEngine
 			void AddStaticSampler(CD3DX12_STATIC_SAMPLER_DESC sampler);
 			void AddStaticSampler(D3D12_STATIC_SAMPLER_DESC sampler);;
 
-			void Initialize(std::shared_ptr<GDevice> device);
+			void SetDesc(D3D12_ROOT_SIGNATURE_DESC desc);
+
+			void Initialize(const std::shared_ptr<GDevice> device, bool force = false);
 
 			ComPtr<ID3D12RootSignature> GetRootSignature() const;
 		};
