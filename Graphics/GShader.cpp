@@ -10,6 +10,10 @@ namespace PEPEngine::Graphics
 		{
 		}
 
+		GShader::GShader()
+		{
+		}
+
 		void GShader::LoadAndCompile()
 		{
 			shaderBlob = CompileShader(FileName, defines, entryPoint, target);
