@@ -38,6 +38,7 @@ namespace PEPEngine
 
 			uint64_t Signal();
 			void Signal(ComPtr<ID3D12Fence> otherFence, UINT64 fenceValue) const;
+			void SignalWithNewFenceValue(UINT64 newFenceValue);
 
 			bool IsFinish(uint64_t fenceValue) const;
 			void WaitForFenceValue(uint64_t fenceValue) const;

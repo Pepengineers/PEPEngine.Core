@@ -125,6 +125,13 @@ namespace PEPEngine::Graphics
 			commandQueue->Signal(otherFence.Get(), fenceValue);
 		}
 
+		void GCommandQueue::SignalWithNewFenceValue(UINT64 newFenceValue)
+		{
+			FenceValue = newFenceValue;
+			Signal(fence, FenceValue);
+		}
+
+	
 		bool GCommandQueue::IsFinish(uint64_t fenceValue) const
 		{
 			return fence->GetCompletedValue() >= fenceValue;
