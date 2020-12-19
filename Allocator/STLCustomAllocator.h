@@ -129,7 +129,7 @@ namespace PEPEngine
 		template <typename T, class AllocationStrategy>
 		AllocationStrategy* STLCustomAllocator<T, AllocationStrategy>::GetStrategy() const
 		{
-			return strategy;
+			return strategy;			
 		}
 
 
