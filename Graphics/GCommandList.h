@@ -24,6 +24,7 @@ namespace PEPEngine
 		class GRootSignature;
 		class GraphicPSO;
 		class ComputePSO;
+		class GRenderTexture;
 		struct UploadAllocation;
 
 		class GCommandList
@@ -108,10 +109,17 @@ namespace PEPEngine
 
 			void ClearRenderTarget(GDescriptor* memory, size_t offset = 0, const FLOAT rgba[4] = DirectX::Colors::Black,
 			                       D3D12_RECT* rects = nullptr, size_t rectCount = 0) const;
+			
+			void ClearRenderTarget(GRenderTexture& target, const FLOAT rgba[4] = DirectX::Colors::Black,
+				D3D12_RECT* rects = nullptr, size_t rectCount = 0) const;
 
 			void SetRenderTargets(size_t RTCount = 0, GDescriptor* rtvMemory = nullptr, size_t rtvOffset = 0,
-			                      GDescriptor* dsvMemory = nullptr, size_t dsvOffset = 0, BOOL isSingleHandle = true) const;
+			                      GDescriptor* dsvMemory = nullptr, size_t dsvOffset = 0) const;
 
+			void SetRenderTarget(GRenderTexture& target, GDescriptor* dsvMemory = nullptr, size_t dsvOffset = 0) const;
+
+			void SetRenderTargets(GRenderTexture* targets, UINT targetsSize, GDescriptor* dsvMemory = nullptr, size_t dsvOffset = 0, BOOL isSingleHandle = true) const;
+			
 			void ClearDepthStencil(GDescriptor* dsvMemory, size_t dsvOffset,
 			                       D3D12_CLEAR_FLAGS flags = D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
 			                       FLOAT depthValue = 1.0f, UINT stencilValue = 0, D3D12_RECT* rects = nullptr, size_t
@@ -138,6 +146,10 @@ namespace PEPEngine
 			void TransitionBarrier(ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES stateAfter,
 			                       UINT subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
 			                       bool flushBarriers = false) const;
+
+			void TransitionBarrier(GRenderTexture* render, D3D12_RESOURCE_STATES stateAfter,
+				UINT subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+				bool flushBarriers = false) const;
 
 			void UAVBarrier(const GResource& resource, bool flushBarriers = false) const;
 			void UAVBarrier(ComPtr<ID3D12Resource> resource, bool flushBarriers = false) const;

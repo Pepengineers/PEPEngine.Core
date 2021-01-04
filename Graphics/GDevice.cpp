@@ -222,7 +222,8 @@ namespace PEPEngine::Graphics
 				queues->clear();
 			}
 
-			device->Release();
+			if(device)
+				device->Release();
 		}
 
 

@@ -10,6 +10,7 @@
 #include "GTexture.h"
 #include "GDescriptorHeap.h"
 #include "GBuffer.h"
+#include "GRenderTarger.h"
 
 namespace PEPEngine::Graphics
 {
@@ -353,6 +354,13 @@ namespace PEPEngine::Graphics
 			}
 		}
 
+		void GCommandList::TransitionBarrier(GRenderTexture* render, D3D12_RESOURCE_STATES stateAfter, UINT subresource,
+			bool flushBarriers) const
+		{
+			assert(render != nullptr);
+			TransitionBarrier(render->GetRenderTexture()->GetD3D12Resource(), stateAfter, subresource, flushBarriers);
+		}
+
 		void GCommandList::UAVBarrier(const GResource& resource, bool flushBarriers) const
 		{
 			UAVBarrier(resource.GetD3D12Resource(), flushBarriers);
@@ -586,8 +594,14 @@ namespace PEPEngine::Graphics
 			cmdList->ClearRenderTargetView(memory->GetCPUHandle(offset), rgba, rectCount, rects);
 		}
 
+		void GCommandList::ClearRenderTarget(GRenderTexture& target, const FLOAT rgba[4], D3D12_RECT* rects,
+			size_t rectCount) const
+		{
+			cmdList->ClearRenderTargetView(target.GetRTVCpu(), rgba, rectCount, rects);
+		}
+
 		void GCommandList::SetRenderTargets(size_t RTCount, GDescriptor* rtvMemory, size_t rtvOffset, GDescriptor* dsvMemory,
-		                                    size_t dsvOffset, BOOL isSingleHandle) const
+		                                    size_t dsvOffset) const
 		{
 			auto* rtvPtr = (rtvMemory == nullptr || rtvMemory->IsNull())
 				               ? nullptr
@@ -597,7 +611,45 @@ namespace PEPEngine::Graphics
 				               ? nullptr
 				               : &dsvMemory->GetCPUHandle(dsvOffset);
 
-			cmdList->OMSetRenderTargets(RTCount, rtvPtr, isSingleHandle, dsvPtr);
+			cmdList->OMSetRenderTargets(RTCount, rtvPtr, true, dsvPtr);
+		}
+
+		void GCommandList::SetRenderTarget(GRenderTexture& target, GDescriptor* dsvMemory, size_t dsvOffset) const
+		{
+			auto* dsvPtr = (dsvMemory == nullptr || dsvMemory->IsNull())
+				? nullptr
+				: &dsvMemory->GetCPUHandle(dsvOffset);
+			
+			cmdList->OMSetRenderTargets(1, &target.GetRTVCpu(), true, dsvPtr);
+		}
+
+		void GCommandList::SetRenderTargets(GRenderTexture* targets, UINT targetsSize, GDescriptor* dsvMemory,
+			size_t dsvOffset, BOOL isSingleHandle) const
+		{
+
+			assert(targetsSize != 0);
+			
+			auto* dsvPtr = (dsvMemory == nullptr || dsvMemory->IsNull())
+				? nullptr
+				: &dsvMemory->GetCPUHandle(dsvOffset);
+			
+			if(isSingleHandle)
+			{
+				cmdList->OMSetRenderTargets(targetsSize, &targets[0].GetRTVCpu(), true, dsvPtr);
+			}
+			else
+			{
+				std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> handlers;
+				handlers.resize(targetsSize);
+
+				for (int i = 0; i < targetsSize; ++i)
+				{
+					handlers.push_back(targets[i].GetRTVCpu());
+				}
+
+				cmdList->OMSetRenderTargets(handlers.size(), handlers.data(), false, dsvPtr);
+				
+			}
 		}
 
 		void GCommandList::ClearDepthStencil(GDescriptor* dsvMemory, size_t dsvOffset, D3D12_CLEAR_FLAGS flags,

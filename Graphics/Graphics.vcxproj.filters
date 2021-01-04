@@ -105,6 +105,9 @@
     <ClInclude Include="GCrossAdapterResource.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="GRenderTarger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ComputePSO.cpp">
@@ -166,6 +169,9 @@
     </ClCompile>
     <ClCompile Include="GCrossAdapterResource.cpp">
       <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="GRenderTarger.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

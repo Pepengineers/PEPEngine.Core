@@ -178,6 +178,7 @@
     <ClInclude Include="GAllocator.h" />
     <ClInclude Include="GDescriptorHeap.h" />
     <ClInclude Include="GDataUploader.h" />
+    <ClInclude Include="GRenderTarger.h" />
     <ClInclude Include="GResourceStateTracker.h" />
     <ClInclude Include="GraphicPSO.h" />
     <ClInclude Include="GResource.h" />
@@ -201,6 +202,7 @@
     <ClCompile Include="GAllocator.cpp" />
     <ClCompile Include="GDescriptorHeap.cpp" />
     <ClCompile Include="GDataUploader.cpp" />
+    <ClCompile Include="GRenderTarger.cpp" />
     <ClCompile Include="GResourceStateTracker.cpp" />
     <ClCompile Include="GraphicPSO.cpp" />
     <ClCompile Include="GResource.cpp" />
