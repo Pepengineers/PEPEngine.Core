@@ -12,7 +12,6 @@ namespace PEPEngine
 	{
 		class GResource
 		{
-			static uint64_t resourceId;
 		public:
 
 			GResource(const std::wstring& name = L"");
@@ -69,7 +68,6 @@ namespace PEPEngine
 
 		protected:
 			std::shared_ptr<GDevice> device;
-			uint64_t id = 0;
 			Microsoft::WRL::ComPtr<ID3D12Resource> dxResource;
 			std::unique_ptr<D3D12_CLEAR_VALUE> clearValue;
 			std::wstring resourceName;

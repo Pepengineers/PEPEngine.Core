@@ -10,12 +10,10 @@
 
 namespace PEPEngine::Graphics
 {
-		uint64_t GResource::resourceId = 0;
 
 		GResource::GResource(const std::wstring& name)
 			: resourceName(std::move(name))
 		{
-			id = ++resourceId;
 		}
 
 		GResource::GResource(const std::shared_ptr<GDevice> device, const D3D12_RESOURCE_DESC& resourceDesc,
@@ -23,7 +21,6 @@ namespace PEPEngine::Graphics
 		                     D3D12_RESOURCE_STATES initState,
 		                     D3D12_HEAP_PROPERTIES heapProp, D3D12_HEAP_FLAGS heapFlags) : device(device)
 		{
-			id = ++resourceId;
 
 
 			if (clearValue)
@@ -49,7 +46,6 @@ namespace PEPEngine::Graphics
 			ComPtr<ID3D12Heap> heap, const std::wstring& name, const D3D12_CLEAR_VALUE* clearValue,
 			D3D12_RESOURCE_STATES initState) : device(device)
 		{
-			id = ++resourceId;
 
 
 			if (clearValue)
@@ -75,13 +71,11 @@ namespace PEPEngine::Graphics
 		                     const std::wstring& name)
 			: device(device), dxResource(std::move(resource))
 		{
-			id = ++resourceId;
 			SetName(name);
 		}
 
 		GResource::GResource(const GResource& copy)
 			: device(copy.device)
-			  , id(copy.id)
 			  , dxResource(copy.dxResource), resourceName(copy.resourceName)
 		{
 			if (copy.clearValue)
@@ -92,7 +86,6 @@ namespace PEPEngine::Graphics
 
 		GResource::GResource(GResource&& move)
 			: device(std::move(move.device))
-			  , id(std::move(move.id))
 			  , dxResource(std::move(move.dxResource))
 			  , clearValue(std::move(move.clearValue)), resourceName(std::move(move.resourceName))
 		{
@@ -102,7 +95,6 @@ namespace PEPEngine::Graphics
 		{
 			if (this != &other)
 			{
-				id = other.id;
 				dxResource = other.dxResource;
 				resourceName = other.resourceName;
 				device = other.device;
@@ -118,7 +110,6 @@ namespace PEPEngine::Graphics
 		{
 			if (this != &other)
 			{
-				id = other.id;
 				dxResource = other.dxResource;
 				resourceName = other.resourceName;
 				device = other.device;

@@ -163,6 +163,7 @@
     <ClInclude Include="d3dx12.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameTimer.h" />
+    <ClInclude Include="IDGenerator.hpp" />
     <ClInclude Include="Lazy.h" />
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="ConcurrentQueue.h" />
