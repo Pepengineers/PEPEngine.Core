@@ -222,8 +222,13 @@ namespace PEPEngine::Graphics
 				queues->clear();
 			}
 
+			std::abort();
+			
 			if(device)
 				device->Release();
+
+			if (adapter)
+				adapter->Release();
 		}
 
 
