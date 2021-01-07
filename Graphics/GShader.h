@@ -28,7 +28,7 @@ namespace PEPEngine
 			const D3D_SHADER_MACRO* defines;
 			std::string entryPoint;
 			std::string target;
-			bool IsInited;
+			bool IsInited = false;
 		public:
 
 			GShader(std::wstring fileName, ShaderType type, const D3D_SHADER_MACRO* defines = nullptr,
