@@ -48,25 +48,8 @@ namespace PEPEngine::Graphics
 			}
 		}
 
-		void GTexture::GenerateMipMaps(std::shared_ptr<GCommandList> cmdList, GTexture** textures, size_t count)
+		static GRootSignature& GetSignature()
 		{
-			UINT requiredHeapSize = 0;
-
-			for (int i = 0; i < count; ++i)
-			{
-				requiredHeapSize += textures[i]->GetD3D12Resource()->GetDesc().MipLevels - 1;
-			}
-
-			if (requiredHeapSize == 0)
-			{
-				return;
-			}
-
-
-			auto mipMapsMemory = cmdList->GetDevice()->AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-			                                                               2 * requiredHeapSize);
-
-
 			CD3DX12_DESCRIPTOR_RANGE srvCbvRanges[2];
 			srvCbvRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
 			srvCbvRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0);
@@ -86,28 +69,53 @@ namespace PEPEngine::Graphics
 			samplerDesc.RegisterSpace = 0;
 			samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-			GRootSignature signature;
+			static GRootSignature signature;
 			signature.AddConstantParameter(2, 0);
 			signature.AddDescriptorParameter(&srvCbvRanges[0], 1);
 			signature.AddDescriptorParameter(&srvCbvRanges[1], 1);
 			signature.AddStaticSampler(samplerDesc);
-			signature.Initialize(textures[0]->device);
+			signature.Initialize(GDeviceFactory::GetDevice());
 
-			auto shader = std::make_unique<GShader>(L"Shaders\\MipMapCS.hlsl", ComputeShader, nullptr,
-			                                        "GenerateMipMaps",
-			                                        "cs_5_1");
+			return signature;
+		}
+
+		static ComputePSO& GetPSO()
+		{
+			static auto shader = std::make_unique<GShader>(L"Shaders\\MipMapCS.hlsl", ComputeShader, nullptr,
+				"GenerateMipMaps",
+				"cs_5_1");
 			shader->LoadAndCompile();
 
 
-			ComputePSO genMipMapPSO;
+			static ComputePSO genMipMapPSO;
 			genMipMapPSO.SetShader(shader.get());
-			genMipMapPSO.SetRootSignature(signature);
-			genMipMapPSO.Initialize(textures[0]->device);
+			genMipMapPSO.SetRootSignature(GetSignature());
+			genMipMapPSO.Initialize(GDeviceFactory::GetDevice());
+			
+			return genMipMapPSO;
+		}
+	
+		void GTexture::GenerateMipMaps(std::shared_ptr<GCommandList> cmdList, GTexture** textures, size_t count)
+		{
+			UINT requiredHeapSize = 0;
 
+			for (int i = 0; i < count; ++i)
+			{
+				requiredHeapSize += textures[i]->GetD3D12Resource()->GetDesc().MipLevels - 1;
+			}
+
+			if (requiredHeapSize == 0)
+			{
+				return;
+			}
+
+
+			auto mipMapsMemory = cmdList->GetDevice()->AllocateDescriptors(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+			                                                               2 * requiredHeapSize);
 
 			
-			cmdList->SetRootSignature(&signature);
-			cmdList->SetPipelineState(genMipMapPSO);
+			cmdList->SetRootSignature(&GetSignature());
+			cmdList->SetPipelineState(GetPSO());
 
 			cmdList->SetDescriptorsHeap(&mipMapsMemory);
 
@@ -162,6 +170,8 @@ namespace PEPEngine::Graphics
 
 					cmdList->UAVBarrier((texture));
 				}
+
+				tex->HasMipMap = true;
 			}
 		}
 
@@ -338,6 +348,11 @@ namespace PEPEngine::Graphics
 				if (resFlags == D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS)
 				{
 					tex->HasMipMap = false;
+
+					std::vector<GTexture*> mipsMaps;
+					mipsMaps.push_back(tex.get());
+					
+					GenerateMipMaps(commandList, mipsMaps.data(), 1);
 				}
 			}
 

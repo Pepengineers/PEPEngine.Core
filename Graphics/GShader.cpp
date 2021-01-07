@@ -16,7 +16,9 @@ namespace PEPEngine::Graphics
 
 		void GShader::LoadAndCompile()
 		{
+			if(IsInited) return;
 			shaderBlob = CompileShader(FileName, defines, entryPoint, target);
+			IsInited = true;
 		}
 
 		ID3DBlob* GShader::GetShaderData()

@@ -149,6 +149,8 @@ namespace PEPEngine::Graphics
 
 		void GRootSignature::Initialize(const std::shared_ptr<GDevice> device, bool force)
 		{
+			if(IsInitialize) return;
+			
 			if (!force)
 			{
 				if (!staticSampler.empty())
@@ -181,6 +183,8 @@ namespace PEPEngine::Graphics
 				serializedRootSig->GetBufferPointer(),
 				serializedRootSig->GetBufferSize(),
 				IID_PPV_ARGS(signature.GetAddressOf())));
+
+			IsInitialize = true;
 		}
 
 		ComPtr<ID3D12RootSignature> GRootSignature::GetRootSignature() const

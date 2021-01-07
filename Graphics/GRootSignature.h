@@ -37,7 +37,7 @@ namespace PEPEngine
 
 			uint32_t descriptorTableBitMask;
 
-
+			bool IsInitialize = false;
 		public:
 
 			virtual ~GRootSignature();
