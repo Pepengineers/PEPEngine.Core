@@ -46,7 +46,7 @@ namespace PEPEngine::Graphics
 		CopyMemory(bufferCPU->GetBufferPointer(), data, bufferSize);
 
 		D3D12_SUBRESOURCE_DATA subResourceData = {};
-		subResourceData.pData = data;
+		subResourceData.pData = bufferCPU->GetBufferPointer();
 		subResourceData.RowPitch = bufferSize;
 		subResourceData.SlicePitch = subResourceData.RowPitch;
 
